@@ -72,6 +72,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .sim-scroll{max-height:500px;overflow-y:auto;border-radius:var(--radius);border:2px solid var(--border)}
 .info-box{background:#e8f5f5;border:1px solid #b2dfdb;border-radius:8px;padding:12px 16px;font-size:.85rem;color:var(--primary-dark);margin:10px 0}
 .info-box strong{display:block;margin-bottom:4px}
+.tab-desc{background:linear-gradient(135deg,#e8f5f5,#f0f8ff);border:1px solid #b2dfdb;border-radius:var(--radius);padding:14px 18px;margin-bottom:20px;font-size:.88rem;color:var(--text);line-height:1.5;display:flex;align-items:center;gap:10px}
+.tab-desc .td-icon{font-size:1.4rem;flex-shrink:0}
+.caixinha-card{background:#fff;border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:var(--shadow);border-left:4px solid var(--accent);position:relative}
+.caixinha-card .remove-btn{position:absolute;top:12px;right:12px;background:var(--coral);color:#fff;border:none;width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center}
+.caixinha-progress{background:var(--border);border-radius:8px;height:24px;overflow:hidden;margin-top:10px;position:relative}
+.caixinha-progress .fill{height:100%;border-radius:8px;transition:width .5s ease;background:linear-gradient(90deg,var(--primary),var(--accent))}
+.caixinha-progress .pct{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:.75rem;font-weight:700;color:var(--text)}
+.caixinha-result{background:#f7fafc;border-radius:8px;padding:12px;margin-top:10px;font-size:.85rem;border:1px solid var(--border)}
+.caixinha-result strong{color:var(--primary-dark)}
 </style>
 </head>
 <body>
@@ -81,13 +90,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 <div class="tab" onclick="showTab(1)">📊 Plano Real</div>
 <div class="tab" onclick="showTab(2)">⚖️ Comparativo</div>
 <div class="tab" onclick="showTab(3)">🔍 Análise</div>
-<div class="tab" onclick="showTab(4)">🧮 Simulador</div>
-<div class="tab" onclick="showTab(5)">🏦 Amortização</div>
+<div class="tab" onclick="showTab(4)">🎯 Caixinhas</div>
+<div class="tab" onclick="showTab(5)">🧮 Simulador</div>
+<div class="tab" onclick="showTab(6)">🏦 Amortização</div>
 </div>
 <div class="content">
 
 <!-- TAB 0: PLANO IDEAL -->
 <div class="tab-content" id="tab0">
+<div class="tab-desc"><span class="td-icon">📋</span> Defina aqui como seria sua vida financeira ideal — salários desejados, gastos planejados e metas de investimento. Esse plano serve como referência para comparar com sua realidade.</div>
 <div class="summary-grid" id="ideal-summary"></div>
 <div class="section-title"><span class="icon">$</span> Salários — Titular</div>
 <div class="card">
@@ -149,6 +160,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
 <!-- TAB 1: PLANO REAL -->
 <div class="tab-content hidden" id="tab1">
+<div class="tab-desc"><span class="td-icon">📊</span> Registre aqui sua situação financeira real de hoje — seus salários atuais, gastos reais, investimentos que possui e dívidas. Seja honesto para que a análise funcione.</div>
 <div class="summary-grid" id="real-summary"></div>
 <div class="section-title"><span class="icon">$</span> Salários — Titular</div>
 <div class="card">
@@ -212,6 +224,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
 <!-- TAB 2 -->
 <div class="tab-content hidden" id="tab2">
+<div class="tab-desc"><span class="td-icon">⚖️</span> Aqui você vê lado a lado o seu plano ideal vs. a realidade. Os valores em verde indicam que você está no caminho certo, e os em vermelho mostram onde precisa ajustar.</div>
 <div class="summary-grid" id="comp-summary"></div>
 <div class="section-title"><span class="icon">⚖️</span> Comparativo Detalhado</div>
 <div class="card" id="compare-table"></div>
@@ -219,6 +232,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
 <!-- TAB 3 -->
 <div class="tab-content hidden" id="tab3">
+<div class="tab-desc"><span class="td-icon">🔍</span> Análise inteligente do seu orçamento. Identifica quais fatores estão te afastando do plano ideal e quais estão te mantendo no caminho certo. Use como guia para suas próximas decisões.</div>
 <div class="summary-grid" id="analysis-summary"></div>
 <div class="section-title"><span class="icon" style="background:var(--danger)">⚠️</span> Pontos Desfavoráveis</div>
 <div id="analysis-bad"></div>
@@ -226,8 +240,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 <div id="analysis-good"></div>
 </div>
 
-<!-- TAB 4: SIMULADOR -->
+<!-- TAB 4: CAIXINHAS -->
 <div class="tab-content hidden" id="tab4">
+<div class="tab-desc"><span class="td-icon">🎯</span> Crie caixinhas para organizar seus objetivos de poupança. Dê um nome, defina quanto quer guardar por período e a meta final — o sistema calcula em quanto tempo você atinge cada objetivo.</div>
+<div id="caixinhas-container"></div>
+<div style="text-align:center;margin-top:16px"><button class="btn btn-accent" onclick="addCaixinha()" style="padding:14px 32px;font-size:1rem">+ Nova Caixinha</button></div>
+</div>
+
+<!-- TAB 5: SIMULADOR -->
+<div class="tab-content hidden" id="tab5">
+<div class="tab-desc"><span class="td-icon">🧮</span> Simule o poder dos juros compostos. Informe um investimento inicial, aportes mensais, taxa de rendimento e período — veja mês a mês como seu dinheiro cresce ao longo do tempo.</div>
 <div class="summary-grid" id="sim-summary"></div>
 <div class="section-title"><span class="icon">🧮</span> Parâmetros</div>
 <div class="card">
@@ -246,8 +268,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 <div id="sim-results" style="margin-top:24px"></div>
 </div>
 
-<!-- TAB 5: AMORTIZAÇÃO -->
-<div class="tab-content hidden" id="tab5">
+<!-- TAB 6: AMORTIZAÇÃO -->
+<div class="tab-content hidden" id="tab6">
+<div class="tab-desc"><span class="td-icon">🏦</span> Simule amortizações de empréstimos. Insira os dados da sua dívida, escolha quanto quer amortizar e veja quantas parcelas e juros você economiza — com tabela comparativa mês a mês.</div>
 <div class="summary-grid" id="amort-summary"></div>
 <div class="section-title"><span class="icon" style="background:var(--purple)">🏦</span> Dados do Empréstimo</div>
 <div class="card purple">
@@ -437,11 +460,70 @@ function runAmort(){
   h+=`</tbody></table></div>`;
   document.getElementById('amort-results').innerHTML=h;}
 
+// ========== CAIXINHAS ==========
+let caixinhaCounter=0;const caixinhas=[];
+function addCaixinha(){
+  const id=++caixinhaCounter;caixinhas.push(id);
+  const div=document.createElement('div');div.className='caixinha-card';div.id='cx-'+id;
+  div.innerHTML=`<button class="remove-btn" onclick="removeCaixinha(${id})">&times;</button>
+  <div class="grid grid-2" style="margin-bottom:12px">
+  <div class="field"><label>Nome da Caixinha</label><input id="cx_nome_${id}" placeholder="Ex: Viagem, Reserva, Celular novo" oninput="calcCaixinha(${id})"></div>
+  <div class="field"><label>Meta (valor total)</label><input id="cx_meta_${id}" data-type="money" placeholder="R$ 0,00" oninput="moneyMask(this);clearTimeout(debounceTimers['cx${id}']);debounceTimers['cx${id}']=setTimeout(()=>calcCaixinha(${id}),2000)"></div>
+  </div>
+  <div class="grid grid-3">
+  <div class="field"><label>Valor do Depósito</label><input id="cx_dep_${id}" data-type="money" placeholder="R$ 0,00" oninput="moneyMask(this);clearTimeout(debounceTimers['cxd${id}']);debounceTimers['cxd${id}']=setTimeout(()=>calcCaixinha(${id}),2000)"></div>
+  <div class="field"><label>Periodicidade</label><select id="cx_per_${id}" onchange="calcCaixinha(${id})"><option value="1">Mensal</option><option value="0.5">Quinzenal</option><option value="0.23">Semanal</option><option value="2">Bimestral</option><option value="3">Trimestral</option><option value="6">Semestral</option><option value="12">Anual</option></select></div>
+  <div class="field"><label>Já poupado</label><input id="cx_atual_${id}" data-type="money" placeholder="R$ 0,00" oninput="moneyMask(this);clearTimeout(debounceTimers['cxa${id}']);debounceTimers['cxa${id}']=setTimeout(()=>calcCaixinha(${id}),2000)"></div>
+  </div>
+  <div class="caixinha-progress"><div class="fill" id="cx_bar_${id}" style="width:0%"></div><span class="pct" id="cx_pct_${id}">0%</span></div>
+  <div class="caixinha-result" id="cx_result_${id}">Preencha os campos acima para ver a simulação.</div>`;
+  document.getElementById('caixinhas-container').appendChild(div);
+}
+function removeCaixinha(id){document.getElementById('cx-'+id).remove();const idx=caixinhas.indexOf(id);if(idx>-1)caixinhas.splice(idx,1);}
+function calcCaixinha(id){
+  const meta=parse(document.getElementById('cx_meta_'+id)?.value);
+  const dep=parse(document.getElementById('cx_dep_'+id)?.value);
+  const perMeses=parseFloat(document.getElementById('cx_per_'+id)?.value)||1;
+  const atual=parse(document.getElementById('cx_atual_'+id)?.value);
+  const nome=document.getElementById('cx_nome_'+id)?.value||'Caixinha';
+  const bar=document.getElementById('cx_bar_'+id);
+  const pct=document.getElementById('cx_pct_'+id);
+  const res=document.getElementById('cx_result_'+id);
+  if(meta<=0){res.innerHTML='Defina uma meta para simular.';bar.style.width='0%';pct.textContent='0%';return;}
+  const pctAtual=Math.min((atual/meta)*100,100);
+  bar.style.width=pctAtual+'%';
+  pct.textContent=pctAtual.toFixed(1)+'%';
+  if(atual>=meta){res.innerHTML=`<strong>🎉 Parabéns!</strong> Você já atingiu a meta de <b>${fmt(meta)}</b> para "${nome}"!`;bar.style.background='linear-gradient(90deg,var(--success),#68d391)';return;}
+  bar.style.background='linear-gradient(90deg,var(--primary),var(--accent))';
+  const falta=meta-atual;
+  if(dep<=0){res.innerHTML=`Faltam <b>${fmt(falta)}</b> para atingir a meta. Defina um valor de depósito para simular o prazo.`;return;}
+  const depPorMes=dep/perMeses;
+  const meses=Math.ceil(falta/depPorMes);
+  const anos=Math.floor(meses/12);const mesesRest=meses%12;
+  let tempoStr='';
+  if(anos>0)tempoStr+=anos+' ano'+(anos>1?'s':'');
+  if(mesesRest>0)tempoStr+=(anos>0?' e ':'')+mesesRest+' '+(mesesRest===1?'mês':'meses');
+  if(!tempoStr)tempoStr='menos de 1 mês';
+  // Evolução resumida
+  let evo='<div style="margin-top:8px;font-size:.82rem;color:var(--text-light)">';
+  let acum=atual;const marcos=[25,50,75,100];let marcoIdx=0;
+  for(let m=1;m<=meses&&marcoIdx<marcos.length;m++){
+    acum+=depPorMes;
+    const p=(acum/meta)*100;
+    while(marcoIdx<marcos.length&&p>=marcos[marcoIdx]){
+      evo+=`<span style="display:inline-block;margin-right:12px">📌 ${marcos[marcoIdx]}% em ~${m} ${m===1?'mês':'meses'}</span>`;
+      marcoIdx++;
+    }
+  }
+  evo+='</div>';
+  res.innerHTML=`<strong>🎯 ${nome}:</strong> Depositando <b>${fmt(dep)}</b> ${document.getElementById('cx_per_'+id).options[document.getElementById('cx_per_'+id).selectedIndex].text.toLowerCase()}, você atinge <b>${fmt(meta)}</b> em aproximadamente <b>${tempoStr}</b> (${meses} meses). Faltam ${fmt(falta)}.${evo}`;
+}
+
 // ========== LOCALSTORAGE ==========
 function saveState(){
   try{
     // Collect all field values
-    const state={D:{...D},fields:{},selects:{},invCounter,loanCounter,extraCounter,extras:[...extras]};
+    const state={D:{...D},fields:{},selects:{},invCounter,loanCounter,extraCounter,extras:[...extras],caixinhaCounter};
     document.querySelectorAll('[data-field]').forEach(el=>{state.fields[el.dataset.field]=el.value;});
     document.querySelectorAll('select[data-field]').forEach(el=>{state.selects[el.dataset.field]=el.value;});
     // Save dynamic items structure
@@ -461,6 +543,10 @@ function saveState(){
     const extraItems=[];
     extras.forEach(eid=>{extraItems.push({eid,val:document.getElementById('extra_val_'+eid)?.value||'',freq:document.getElementById('extra_freq_'+eid)?.value||'',tipo:document.getElementById('extra_tipo_'+eid)?.value||'meses',desc:document.getElementById('extra_desc_'+eid)?.value||''});});
     state.extraItems=extraItems;
+    // Save caixinhas
+    const caixinhaItems=[];
+    caixinhas.forEach(cid=>{caixinhaItems.push({cid,nome:document.getElementById('cx_nome_'+cid)?.value||'',meta:document.getElementById('cx_meta_'+cid)?.value||'',dep:document.getElementById('cx_dep_'+cid)?.value||'',per:document.getElementById('cx_per_'+cid)?.value||'1',atual:document.getElementById('cx_atual_'+cid)?.value||''});});
+    state.caixinhaItems=caixinhaItems;
     localStorage.setItem('planejadorFinanceiro',JSON.stringify(state));
   }catch(e){console.warn('Erro ao salvar:',e);}
 }
@@ -508,6 +594,17 @@ function loadState(){
       const fe=document.getElementById('extra_freq_'+eid);if(fe)fe.value=item.freq;
       const te=document.getElementById('extra_tipo_'+eid);if(te)te.value=item.tipo;
       const de=document.getElementById('extra_desc_'+eid);if(de)de.value=item.desc;
+    });}
+    // Restore caixinhas
+    if(state.caixinhaItems){state.caixinhaItems.forEach(item=>{
+      addCaixinha();
+      const cid=caixinhas[caixinhas.length-1];
+      const ne=document.getElementById('cx_nome_'+cid);if(ne)ne.value=item.nome;
+      const me=document.getElementById('cx_meta_'+cid);if(me)me.value=item.meta;
+      const de=document.getElementById('cx_dep_'+cid);if(de)de.value=item.dep;
+      const pe=document.getElementById('cx_per_'+cid);if(pe)pe.value=item.per;
+      const ae=document.getElementById('cx_atual_'+cid);if(ae)ae.value=item.atual;
+      calcCaixinha(cid);
     });}
     // Restore D object
     if(state.D){Object.keys(state.D).forEach(k=>{if(!D[k])D[k]=state.D[k];});}
