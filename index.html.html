@@ -132,6 +132,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 <div class="field"><label>Condomínio</label><input type="text" data-field="i_condo" data-type="money" placeholder="R$ 0,00"></div>
 <div class="field"><label>IPTU</label><input type="text" data-field="i_iptu" data-type="money" placeholder="R$ 0,00"></div>
 <div class="field"><label>Luz</label><input type="text" data-field="i_luz" data-type="money" placeholder="R$ 0,00"></div>
+<div class="field"><label>Água</label><input type="text" data-field="i_agua" data-type="money" placeholder="R$ 0,00"></div>
 <div class="field"><label>Gás</label><input type="text" data-field="i_gas" data-type="money" placeholder="R$ 0,00"></div>
 <div class="field"><label>Educação</label><input type="text" data-field="i_edu" data-type="money" placeholder="R$ 0,00"></div>
 <div class="field"><label>Mercado</label><input type="text" data-field="i_mercado" data-type="money" placeholder="R$ 0,00"></div>
@@ -192,6 +193,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 <div class="field"><label>Condomínio</label><input type="text" data-field="r_condo" data-type="money" placeholder="R$ 0,00"></div>
 <div class="field"><label>IPTU</label><input type="text" data-field="r_iptu" data-type="money" placeholder="R$ 0,00"></div>
 <div class="field"><label>Luz</label><input type="text" data-field="r_luz" data-type="money" placeholder="R$ 0,00"></div>
+<div class="field"><label>Água</label><input type="text" data-field="r_agua" data-type="money" placeholder="R$ 0,00"></div>
 <div class="field"><label>Gás</label><input type="text" data-field="r_gas" data-type="money" placeholder="R$ 0,00"></div>
 <div class="field"><label>Educação</label><input type="text" data-field="r_edu" data-type="money" placeholder="R$ 0,00"></div>
 <div class="field"><label>Mercado</label><input type="text" data-field="r_mercado" data-type="money" placeholder="R$ 0,00"></div>
@@ -333,7 +335,7 @@ function calcPlan(p){
   const bper2=parseInt(document.querySelector(`[data-field="${p}_bonus_per2"]`)?.value)||12;
   const bonusMesLiq=liq.bonusLiq/bper+liq.bonus2Liq/bper2;
   const rendaTotal=liq.salLiq+va+liq.sal2Liq+va2+bonusMesLiq;
-  const gk=['aluguel','condo','iptu','luz','gas','edu','mercado','cartao','veiculo','comb','net'];
+  const gk=['aluguel','condo','iptu','luz','agua','gas','edu','mercado','cartao','veiculo','comb','net'];
   const gastos={};let gastoTotal=0;gk.forEach(k=>{const v=parse(document.querySelector(`[data-field="${p}_${k}"]`)?.value)||0;gastos[k]=v;gastoTotal+=v;});
   let invP=0,invD=0,invIR=0,invIP=0,lT=0,lP=0;
   Object.keys(D).forEach(k=>{if(!k.startsWith(p+'_inv_')&&!k.startsWith(p+'_loan_'))return;const o=D[k];if(!o?.type)return;
@@ -354,8 +356,8 @@ ${sl?`<div class="summary-box coral"><div class="label">Dívida Total</div><div 
 function recalc(){const i=calcPlan('i'),r=calcPlan('r');renderSummary('ideal-summary',i,false);renderSummary('real-summary',r,true);renderCompare(i,r);renderAnalysis(i,r);}
 
 function renderCompare(i,r){
-  const items=[['Salário Líquido',i.salLiq,r.salLiq],['VA',i.va,r.va],['Bônus Líq./Mês',i.bonusMesLiq,r.bonusMesLiq],['Sal. Líq. Cônjuge',i.sal2Liq,r.sal2Liq],['VA Cônjuge',i.va2,r.va2],['─ RENDA LÍQ. TOTAL',i.rendaTotal,r.rendaTotal],['Aluguel',i.gastos.aluguel,r.gastos.aluguel],['Condomínio',i.gastos.condo,r.gastos.condo],['IPTU',i.gastos.iptu,r.gastos.iptu],['Luz',i.gastos.luz,r.gastos.luz],['Gás',i.gastos.gas,r.gastos.gas],['Educação',i.gastos.edu,r.gastos.edu],['Mercado',i.gastos.mercado,r.gastos.mercado],['Cartões',i.gastos.cartao,r.gastos.cartao],['Veículo',i.gastos.veiculo,r.gastos.veiculo],['Combustível',i.gastos.comb,r.gastos.comb],['Internet',i.gastos.net,r.gastos.net],['Empréstimos',0,r.loanParcMes],['─ GASTOS TOTAIS',i.gastoTotal,r.gastoTotalComLoans],['─ SALDO',i.saldo,r.saldo],['Patrimônio',i.patrimonio,r.patrimonio],['Renda Passiva',i.rendaPassiva,r.rendaPassiva]];
-  const en=['Aluguel','Condomínio','IPTU','Luz','Gás','Educação','Mercado','Cartões','Veículo','Combustível','Internet','Empréstimos'];
+  const items=[['Salário Líquido',i.salLiq,r.salLiq],['VA',i.va,r.va],['Bônus Líq./Mês',i.bonusMesLiq,r.bonusMesLiq],['Sal. Líq. Cônjuge',i.sal2Liq,r.sal2Liq],['VA Cônjuge',i.va2,r.va2],['─ RENDA LÍQ. TOTAL',i.rendaTotal,r.rendaTotal],['Aluguel',i.gastos.aluguel,r.gastos.aluguel],['Condomínio',i.gastos.condo,r.gastos.condo],['IPTU',i.gastos.iptu,r.gastos.iptu],['Luz',i.gastos.luz,r.gastos.luz],['Água',i.gastos.agua,r.gastos.agua],['Gás',i.gastos.gas,r.gastos.gas],['Educação',i.gastos.edu,r.gastos.edu],['Mercado',i.gastos.mercado,r.gastos.mercado],['Cartões',i.gastos.cartao,r.gastos.cartao],['Veículo',i.gastos.veiculo,r.gastos.veiculo],['Combustível',i.gastos.comb,r.gastos.comb],['Internet',i.gastos.net,r.gastos.net],['Empréstimos',0,r.loanParcMes],['─ GASTOS TOTAIS',i.gastoTotal,r.gastoTotalComLoans],['─ SALDO',i.saldo,r.saldo],['Patrimônio',i.patrimonio,r.patrimonio],['Renda Passiva',i.rendaPassiva,r.rendaPassiva]];
+  const en=['Aluguel','Condomínio','IPTU','Luz','Água','Gás','Educação','Mercado','Cartões','Veículo','Combustível','Internet','Empréstimos'];
   let h=`<div class="compare-row header"><div>Item</div><div>Ideal</div><div>Real</div><div>Diferença</div></div>`;
   items.forEach(([n,iv,rv])=>{const d=rv-iv;const ie=en.includes(n);const it=n.startsWith('─');let bc='badge-success';if(ie&&d>0)bc='badge-danger';else if(!ie&&d<0)bc='badge-danger';if(Math.abs(d)<.01)bc='badge-warning';
   h+=`<div class="compare-row" style="${it?'font-weight:700;background:#f7fafc;border-radius:6px;padding:10px':''}"><div>${n}</div><div>${fmt(iv)}</div><div>${fmt(rv)}</div><div><span class="badge ${bc}">${d>=0?'+':''}${fmt(d)}</span></div></div>`;});
@@ -364,7 +366,7 @@ function renderCompare(i,r){
   document.getElementById('comp-summary').innerHTML=`<div class="summary-box ${ds>=0?'success':'coral'}"><div class="label">Dif. Saldo</div><div class="value ${ds>=0?'positive':'negative'}">${fmt(ds)}</div></div><div class="summary-box"><div class="label">Renda Real vs Ideal</div><div class="value">${pr.toFixed(1)}%</div><div class="progress-bar"><div class="fill" style="width:${Math.min(pr,100)}%;background:${pr>=100?'var(--success)':'var(--accent)'}"></div></div></div><div class="summary-box"><div class="label">Gastos Real vs Ideal</div><div class="value">${pg.toFixed(1)}%</div><div class="progress-bar"><div class="fill" style="width:${Math.min(pg,150)/1.5}%;background:${pg<=100?'var(--success)':'var(--danger)'}"></div></div></div><div class="summary-box blue"><div class="label">Patrimônio Real vs Ideal</div><div class="value">${i.patrimonio?(r.patrimonio/i.patrimonio*100).toFixed(1):0}%</div></div>`;}
 
 function renderAnalysis(i,r){
-  const bad=[],good=[];const gl={aluguel:'Aluguel',condo:'Condomínio',iptu:'IPTU',luz:'Luz',gas:'Gás',edu:'Educação',mercado:'Mercado',cartao:'Cartões',veiculo:'Veículo',comb:'Combustível',net:'Internet'};
+  const bad=[],good=[];const gl={aluguel:'Aluguel',condo:'Condomínio',iptu:'IPTU',luz:'Luz',agua:'Água',gas:'Gás',edu:'Educação',mercado:'Mercado',cartao:'Cartões',veiculo:'Veículo',comb:'Combustível',net:'Internet'};
   if(r.rendaTotal<i.rendaTotal&&i.rendaTotal>0){const d=i.rendaTotal-r.rendaTotal;bad.push({title:`Renda líquida abaixo em ${fmt(d)}`,desc:`Real ${fmt(r.rendaTotal)} vs Ideal ${fmt(i.rendaTotal)}.`});}else if(r.rendaTotal>=i.rendaTotal&&i.rendaTotal>0)good.push({title:'Renda líquida no nível ideal',desc:`${fmt(r.rendaTotal)} atinge o planejado.`});
   Object.keys(gl).forEach(k=>{const iv=i.gastos[k]||0,rv=r.gastos[k]||0;if(rv>iv&&iv>0)bad.push({title:`${gl[k]}: +${fmt(rv-iv)} acima`,desc:`Real ${fmt(rv)} vs Ideal ${fmt(iv)}.`});else if(rv<=iv&&iv>0)good.push({title:`${gl[k]} dentro do ideal`,desc:`Real ${fmt(rv)} vs Ideal ${fmt(iv)}.`});});
   if(r.loanParcMes>0)bad.push({title:`Empréstimos: ${fmt(r.loanParcMes)}/mês`,desc:`Dívida ${fmt(r.loanTotal)}. Compromete ${r.rendaTotal?((r.loanParcMes/r.rendaTotal)*100).toFixed(1):0}% da renda.`});
@@ -435,7 +437,90 @@ function runAmort(){
   h+=`</tbody></table></div>`;
   document.getElementById('amort-results').innerHTML=h;}
 
+// ========== LOCALSTORAGE ==========
+function saveState(){
+  try{
+    // Collect all field values
+    const state={D:{...D},fields:{},selects:{},invCounter,loanCounter,extraCounter,extras:[...extras]};
+    document.querySelectorAll('[data-field]').forEach(el=>{state.fields[el.dataset.field]=el.value;});
+    document.querySelectorAll('select[data-field]').forEach(el=>{state.selects[el.dataset.field]=el.value;});
+    // Save dynamic items structure
+    const dynItems=[];
+    document.querySelectorAll('.inv-item').forEach(el=>{dynItems.push({id:el.id,type:el.dataset.type,prefix:el.dataset.prefix,key:el.dataset.key,fields:{}});
+      el.querySelectorAll('[data-inv]').forEach(inp=>{dynItems[dynItems.length-1].fields[inp.dataset.k]=inp.value;});});
+    state.dynItems=dynItems;
+    const loanItems=[];
+    document.querySelectorAll('.loan-item').forEach(el=>{const key=el.id.replace('loan-','');loanItems.push({id:el.id,key:'r_loan_'+key,fields:{}});
+      el.querySelectorAll('[data-loan]').forEach(inp=>{loanItems[loanItems.length-1].fields[inp.dataset.k]=inp.value;});});
+    state.loanItems=loanItems;
+    // Save sim fields
+    ['sim_inicial','sim_aporte','sim_taxa','sim_taxa_tipo','sim_periodo','sim_periodo_tipo','sim_view',
+     'amort_saldo','amort_parcelas','amort_juros','amort_vlr_parcela','amort_sistema','amort_inst','amort_tipo','amort_valor','amort_reduzir'
+    ].forEach(id=>{const el=document.getElementById(id);if(el)state.fields[id]=el.value;});
+    // Save extras
+    const extraItems=[];
+    extras.forEach(eid=>{extraItems.push({eid,val:document.getElementById('extra_val_'+eid)?.value||'',freq:document.getElementById('extra_freq_'+eid)?.value||'',tipo:document.getElementById('extra_tipo_'+eid)?.value||'meses',desc:document.getElementById('extra_desc_'+eid)?.value||''});});
+    state.extraItems=extraItems;
+    localStorage.setItem('planejadorFinanceiro',JSON.stringify(state));
+  }catch(e){console.warn('Erro ao salvar:',e);}
+}
+
+function loadState(){
+  try{
+    const raw=localStorage.getItem('planejadorFinanceiro');
+    if(!raw)return;
+    const state=JSON.parse(raw);
+    // Restore simple fields
+    if(state.fields){Object.keys(state.fields).forEach(k=>{
+      const el=document.querySelector(`[data-field="${k}"]`)||document.getElementById(k);
+      if(el){el.value=state.fields[k];if(el.dataset.field)D[el.dataset.field]=el.dataset.type==='money'?parse(el.value):el.value;}
+    });}
+    if(state.selects){Object.keys(state.selects).forEach(k=>{
+      const el=document.querySelector(`select[data-field="${k}"]`);
+      if(el){el.value=state.selects[k];D[k]=state.selects[k];}
+    });}
+    // Restore dynamic investment items
+    if(state.dynItems){state.dynItems.forEach(item=>{
+      const typeMap={acao:'acoes',fii:'fiis',imovel:'imoveis'};
+      const containerId=(item.prefix==='i'?'ideal-':'real-')+typeMap[item.type];
+      addInvItem(containerId,item.type,item.prefix);
+      // Fill fields
+      const lastEl=document.getElementById('inv-'+invCounter);
+      if(lastEl&&item.fields){Object.keys(item.fields).forEach(k=>{
+        const inp=lastEl.querySelector(`[data-k="${k}"]`);
+        if(inp){inp.value=item.fields[k];}
+      });}
+    });}
+    // Restore loans
+    if(state.loanItems){state.loanItems.forEach(item=>{
+      addLoan();
+      const lastEl=document.getElementById('loan-'+loanCounter);
+      if(lastEl&&item.fields){Object.keys(item.fields).forEach(k=>{
+        const inp=lastEl.querySelector(`[data-k="${k}"]`);
+        if(inp){inp.value=item.fields[k];}
+      });}
+    });}
+    // Restore extras
+    if(state.extraItems){state.extraItems.forEach(item=>{
+      addExtra();
+      const eid=extras[extras.length-1];
+      const ve=document.getElementById('extra_val_'+eid);if(ve)ve.value=item.val;
+      const fe=document.getElementById('extra_freq_'+eid);if(fe)fe.value=item.freq;
+      const te=document.getElementById('extra_tipo_'+eid);if(te)te.value=item.tipo;
+      const de=document.getElementById('extra_desc_'+eid);if(de)de.value=item.desc;
+    });}
+    // Restore D object
+    if(state.D){Object.keys(state.D).forEach(k=>{if(!D[k])D[k]=state.D[k];});}
+  }catch(e){console.warn('Erro ao carregar:',e);}
+}
+
+// Load saved data first, then recalc
+loadState();
 recalc();
+// Auto-save after debounce triggers recalc - hook into input handler
+const _origDebounceHandler=document.oninput;
+setInterval(saveState,5000); // Auto-save every 5 seconds
+window.addEventListener('beforeunload',saveState);
 </script>
 </body>
 </html>
