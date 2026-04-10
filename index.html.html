@@ -425,4 +425,17 @@ function runAmort(){
   }
 
   const jEcon=tJO-tJN;const pEcon=rO.length-rN.length;
-  document.getElementById('amort-summary').innerHTML=`<div class="summary-box success"><div class="label
+  document.getElementById('amort-summary').innerHTML=`<div class="summary-box success"><div class="label">Juros Economizados</div><div class="value positive">${fmt(jEcon)}</div></div><div class="summary-box purple"><div class="label">Parcelas Reduzidas</div><div class="value">${Math.max(0,pEcon)}</div></div><div class="summary-box"><div class="label">Prazo Original</div><div class="value">${rO.length} meses</div></div><div class="summary-box accent"><div class="label">Novo Prazo</div><div class="value">${rN.length} meses</div></div><div class="summary-box coral"><div class="label">Juros Original</div><div class="value">${fmt(tJO)}</div></div><div class="summary-box blue"><div class="label">Juros Novo</div><div class="value">${fmt(tJN)}</div></div>`;
+
+  let h=`<div class="section-title"><span class="icon" style="background:var(--purple)">📊</span> COM Amortização — ${inst}</div><div class="info-box"><strong>Resumo:</strong> Economia de <b>${fmt(jEcon)}</b> em juros e redução de <b>${Math.max(0,pEcon)} parcelas</b>. Prazo: ${rO.length} → ${rN.length} meses.</div><div class="sim-scroll"><table class="sim-table"><thead><tr><th>Mês</th><th>Parcela</th><th>Juros</th><th>Amortização</th><th>Amort. Extra</th><th>Saldo</th></tr></thead><tbody>`;
+  rN.forEach(r=>{h+=`<tr${r.extra>0?' class="highlight"':''}><td>${r.mes}</td><td>${fmt(r.parcela)}</td><td>${fmt(r.juros)}</td><td>${fmt(r.amort)}</td><td>${r.extra>0?fmt(r.extra):'-'}</td><td>${fmt(r.saldo)}</td></tr>`;});
+  h+=`</tbody></table></div>`;
+  h+=`<div class="section-title" style="margin-top:24px"><span class="icon" style="background:var(--coral)">📊</span> SEM Amortização (original)</div><div class="sim-scroll"><table class="sim-table"><thead><tr><th>Mês</th><th>Parcela</th><th>Juros</th><th>Amortização</th><th>Saldo</th></tr></thead><tbody>`;
+  rO.forEach(r=>{h+=`<tr><td>${r.mes}</td><td>${fmt(r.parcela)}</td><td>${fmt(r.juros)}</td><td>${fmt(r.amort)}</td><td>${fmt(r.saldo)}</td></tr>`;});
+  h+=`</tbody></table></div>`;
+  document.getElementById('amort-results').innerHTML=h;}
+
+recalc();
+</script>
+</body>
+</html>
