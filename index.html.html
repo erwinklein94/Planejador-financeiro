@@ -1,530 +1,417 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Planejador Financeiro — Orçamento, Simulador e Amortização</title>
-<meta name="description" content="Planeje seu orçamento ideal, compare com seus gastos reais, simule investimentos com juros compostos e amortizações.">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
---bg:#f0f4f8;--card:#fff;--primary:#2ab5b2;--primary-dark:#1e9e9b;--accent:#f5a623;--coral:#f06868;--blue:#4a90d9;
---text:#2d3748;--text-light:#718096;--border:#e2e8f0;--success:#48bb78;--danger:#f56565;--warning:#ecc94b;
---shadow:0 2px 12px rgba(0,0,0,.08);--radius:12px;--purple:#805ad5;--sidebar-bg:#2d3748;--sidebar-text:#fff;
-}
-body.dark {
---bg:#1a202c;--card:#2d3748;--text:#edf2f7;--text-light:#a0aec0;--border:#4a5568;--sidebar-bg:#171923;
-}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition: background 0.3s;}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planejador Financeiro Pro — EK</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #f0f4f8; --card: #fff; --sidebar: #1a202c; --sidebar-text: #fff;
+            --primary: #2ab5b2; --primary-dark: #1e9e9b; --accent: #f5a623;
+            --coral: #f06868; --blue: #4a90d9; --text: #2d3748; --text-light: #718096;
+            --border: #e2e8f0; --success: #48bb78; --danger: #f56565; --warning: #ecc94b;
+            --shadow: 0 4px 12px rgba(0,0,0,.08); --radius: 12px; --purple: #805ad5;
+        }
 
-/* SIDEBAR LAYOUT */
-.app-container { display: flex; flex-direction: column; min-height: 100vh; }
-.sidebar { position: fixed; left: 0; top: 0; width: 240px; height: 100%; background: var(--sidebar-bg); color: var(--sidebar-text); padding: 20px 0; z-index: 100; display: flex; flex-direction: column; overflow-y: auto; transition: 0.3s; }
-.sidebar-header { padding: 0 20px 20px; font-family: 'Space Mono', monospace; font-size: 1.2rem; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 10px; color: var(--primary); }
-.sidebar-btn { padding: 14px 24px; cursor: pointer; font-weight: 600; font-size: .9rem; color: rgba(255,255,255,0.7); border: none; background: none; text-align: left; width: 100%; transition: .2s; display: flex; align-items: center; gap: 10px; }
-.sidebar-btn:hover { color: #fff; background: rgba(255,255,255,0.05); }
-.sidebar-btn.active { color: #fff; background: var(--primary); border-left: 4px solid var(--accent); }
-.content { margin-left: 240px; flex: 1; padding: 24px; max-width: 1200px; width: 100%; transition: 0.3s; }
-@media(max-width: 768px){
-  .app-container { flex-direction: column; }
-  .sidebar { position: static; width: 100%; height: auto; padding: 10px 0; }
-  .sidebar-menu { display: flex; overflow-x: auto; white-space: nowrap; }
-  .sidebar-btn { width: auto; border-left: none; }
-  .sidebar-btn.active { border-left: none; border-bottom: 4px solid var(--accent); }
-  .content { margin-left: 0; }
-}
+        /* Dark Theme Overrides */
+        body.dark-theme {
+            --bg: #121212; --card: #1e1e1e; --text: #e2e8f0; --text-light: #a0aec0;
+            --border: #333; --shadow: 0 4px 12px rgba(0,0,0,.5);
+        }
 
-/* GENERAL STYLES */
-.section-title{font-family:'Space Mono',monospace;font-size:1.05rem;color:var(--primary);margin:24px 0 16px;padding-bottom:8px;border-bottom:3px solid var(--primary);display:flex;align-items:center;gap:10px}
-.section-title .icon{width:28px;height:28px;background:var(--primary);color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.85rem}
-.card{background:var(--card);border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:var(--shadow);border-left:4px solid var(--primary);transition:transform .15s}
-.card:hover{transform:translateY(-1px)}
-.card.accent{border-left-color:var(--accent)}.card.coral{border-left-color:var(--coral)}.card.blue{border-left-color:var(--blue)}.card.purple{border-left-color:var(--purple)}
-.grid{display:grid;gap:12px}
-.grid-2{grid-template-columns:1fr 1fr}.grid-3{grid-template-columns:1fr 1fr 1fr}.grid-4{grid-template-columns:1fr 1fr 1fr 1fr}.grid-5{grid-template-columns:1fr 1fr 1fr 1fr 1fr}
-@media(max-width:768px){.grid-2,.grid-3,.grid-4,.grid-5{grid-template-columns:1fr}}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); transition: 0.3s; overflow-x: hidden; }
 
-/* INPUTS */
-.field{display:flex;flex-direction:column;gap:4px}
-.field label{font-size:.75rem;font-weight:600;color:var(--text-light);text-transform:uppercase;letter-spacing:.5px}
-.field input,.field select{padding:10px 12px;border:2px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.92rem;transition:.2s;background:transparent;color:var(--text)}
-.field input:focus,.field select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(42,181,178,.15)}
-.field input[readonly]{background:rgba(0,0,0,0.05);color:var(--primary);cursor:default;font-weight:600;border-color:var(--border)}
-body.dark .field input[readonly]{background:rgba(255,255,255,0.05);}
+        /* Sidebar & Layout */
+        #app-wrapper { display: flex; min-height: 100vh; }
+        
+        .sidebar {
+            width: 260px; background: var(--sidebar); color: var(--sidebar-text);
+            position: fixed; height: 100vh; transition: 0.3s; z-index: 1000;
+            left: -260px; display: flex; flex-direction: column;
+        }
+        .sidebar.open { left: 0; }
+        .sidebar-header { padding: 25px; border-bottom: 1px solid #2d3748; text-align: center; }
+        .sidebar-header h2 { font-family: 'Space Mono', monospace; font-size: 1.2rem; color: var(--primary); }
+        
+        .nav-menu { flex: 1; overflow-y: auto; padding: 15px 0; }
+        .nav-item { 
+            padding: 12px 25px; cursor: pointer; transition: 0.2s; 
+            display: flex; align-items: center; gap: 12px; font-size: 0.9rem; font-weight: 500;
+        }
+        .nav-item:hover { background: rgba(255,255,255,0.05); color: var(--primary); }
+        .nav-item.active { background: var(--primary); color: white; }
 
-/* BUTTONS */
-.btn{padding:10px 20px;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;transition:.2s;font-size:.85rem}
-.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-dark)}
-.btn-accent{background:var(--accent);color:#fff}.btn-accent:hover{background:#e09515}
-.btn-danger{background:var(--coral);color:#fff}.btn-danger:hover{background:#e05555}
-.btn-purple{background:var(--purple);color:#fff}.btn-purple:hover{background:#6b46c1}
-.btn-sm{padding:6px 14px;font-size:.8rem}
-.btn-add{display:inline-flex;align-items:center;gap:6px;margin-top:8px}
+        .main-content { flex: 1; transition: 0.3s; padding: 20px; margin-left: 0; }
+        @media(min-width: 1024px) { 
+            .sidebar { left: 0; } 
+            .main-content { margin-left: 260px; }
+            #sidebar-toggle { display: none; }
+        }
 
-/* COMPONENTS */
-.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin:16px 0}
-.summary-box{background:var(--card);border-radius:var(--radius);padding:18px;text-align:center;box-shadow:var(--shadow);border-top:4px solid var(--primary)}
-.summary-box.accent{border-top-color:var(--accent)}.summary-box.coral{border-top-color:var(--coral)}.summary-box.blue{border-top-color:var(--blue)}.summary-box.success{border-top-color:var(--success)}.summary-box.purple{border-top-color:var(--purple)}
-.summary-box .label{font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;color:var(--text-light);font-weight:600}
-.summary-box .value{font-family:'Space Mono',monospace;font-size:1.3rem;font-weight:700;margin-top:4px}
-.summary-box .value.positive{color:var(--success)}.summary-box .value.negative{color:var(--danger)}
+        /* Mobile Header */
+        .mobile-top-bar {
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--primary); color: white; padding: 15px 20px;
+            position: sticky; top: 0; z-index: 999;
+        }
 
-.inv-item,.loan-item,.extra-item{background:rgba(0,0,0,0.02);border-radius:8px;padding:14px;margin-bottom:10px;border:1px solid var(--border);position:relative}
-body.dark .inv-item, body.dark .loan-item, body.dark .extra-item { background: rgba(255,255,255,0.02); }
-.inv-item .remove-btn,.loan-item .remove-btn,.extra-item .remove-btn, .caixinha-card .remove-btn{position:absolute;top:8px;right:8px;background:var(--coral);color:#fff;border:none;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:.8rem;display:flex;align-items:center;justify-content:center}
+        /* Elements */
+        .card { background: var(--card); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow); border-left: 4px solid var(--primary); }
+        .section-title { font-family: 'Space Mono', monospace; font-size: 1rem; color: var(--primary-dark); margin: 20px 0 10px; border-bottom: 2px solid var(--primary); padding-bottom: 5px; }
+        
+        .grid { display: grid; gap: 15px; }
+        .grid-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-3 { grid-template-columns: repeat(3, 1fr); }
+        @media(max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
 
-.compare-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px;padding:10px 0;border-bottom:1px solid var(--border);align-items:center;font-size:.88rem}
-.compare-row.header{font-weight:700;color:var(--primary);font-size:.78rem;text-transform:uppercase;letter-spacing:.5px}
-.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:600}
-.badge-success{background:rgba(72,187,120,0.2);color:var(--success)}.badge-danger{background:rgba(245,101,101,0.2);color:var(--danger)}.badge-warning{background:rgba(236,201,75,0.2);color:var(--warning)}
+        .field { display: flex; flex-direction: column; gap: 5px; }
+        .field label { font-size: 0.75rem; font-weight: 700; color: var(--text-light); text-transform: uppercase; }
+        .field input, .field select { 
+            padding: 12px; border: 1px solid var(--border); border-radius: 8px; 
+            background: var(--bg); color: var(--text); font-size: 0.95rem;
+        }
 
-.analysis-card{background:var(--card);border-radius:var(--radius);padding:18px;margin-bottom:12px;box-shadow:var(--shadow);display:flex;gap:14px;align-items:flex-start}
-.analysis-card .indicator{width:6px;min-height:40px;border-radius:3px;flex-shrink:0}
-.analysis-card .indicator.good{background:var(--success)}.analysis-card .indicator.bad{background:var(--danger)}.analysis-card .indicator.warn{background:var(--warning)}
-.analysis-card h4{font-size:.95rem;margin-bottom:4px}.analysis-card p{font-size:.85rem;color:var(--text-light)}
+        /* Results Styling (Gross vs Net) */
+        .calc-result { font-size: 0.8rem; color: var(--primary-dark); font-weight: 600; margin-top: 5px; }
+        body.dark-theme .calc-result { color: var(--accent); }
 
-.hidden{display:none}
-.tab-content{animation:fadeIn .3s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+        .btn { 
+            padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; 
+            font-weight: 600; transition: 0.2s; font-family: inherit;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-theme { background: transparent; border: 1px solid white; color: white; padding: 5px 10px; font-size: 0.7rem; }
 
-.progress-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:6px}
-.progress-bar .fill{height:100%;border-radius:4px;transition:width .5s ease}
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .summary-box { background: var(--card); padding: 15px; border-radius: var(--radius); text-align: center; border-top: 4px solid var(--primary); box-shadow: var(--shadow); }
+        .summary-box .value { font-family: 'Space Mono', monospace; font-size: 1.2rem; font-weight: 700; display: block; margin-top: 5px; }
 
-.sim-table{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:12px}
-.sim-table th{background:var(--primary);color:#fff;padding:10px 12px;text-align:right;font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.3px;position:sticky;top:0}
-.sim-table th:first-child{text-align:center;border-radius:8px 0 0 0}.sim-table th:last-child{border-radius:0 8px 0 0}
-.sim-table td{padding:9px 12px;text-align:right;border-bottom:1px solid var(--border)}
-.sim-table td:first-child{text-align:center;font-weight:600;color:var(--primary)}
-.sim-table tr:hover td{background:rgba(42,181,178,0.05)}
-.sim-table tr.year-row td{background:rgba(0,0,0,0.05);font-weight:700}
-body.dark .sim-table tr.year-row td{background:rgba(255,255,255,0.05);}
-.sim-scroll{max-height:500px;overflow-y:auto;border-radius:var(--radius);border:2px solid var(--border)}
+        .hidden { display: none; }
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+        .badge-success { background: #c6f6d5; color: #276749; }
+        .badge-danger { background: #fed7d7; color: #9b2c2c; }
 
-.info-box{background:rgba(42,181,178,0.1);border:1px solid var(--primary);border-radius:8px;padding:12px 16px;font-size:.85rem;color:var(--text);margin:10px 0}
-.tab-desc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-bottom:20px;font-size:.88rem;color:var(--text);line-height:1.5;display:flex;align-items:center;gap:10px}
-.tab-desc .td-icon{font-size:1.4rem;flex-shrink:0}
-
-.caixinha-card{background:var(--card);border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:var(--shadow);border-left:4px solid var(--accent);position:relative}
-.caixinha-progress{background:var(--border);border-radius:8px;height:24px;overflow:hidden;margin-top:10px;position:relative}
-.caixinha-progress .fill{height:100%;border-radius:8px;transition:width .5s ease;background:linear-gradient(90deg,var(--primary),var(--accent))}
-.caixinha-progress .pct{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:.75rem;font-weight:700;color:#fff;text-shadow: 0 1px 2px rgba(0,0,0,0.5);}
-.caixinha-result{background:rgba(0,0,0,0.02);border-radius:8px;padding:12px;margin-top:10px;font-size:.85rem;border:1px solid var(--border)}
-body.dark .caixinha-result{background:rgba(255,255,255,0.02);}
-
-.chart-container { position: relative; height: 400px; width: 100%; }
-</style>
+        .chart-container { height: 300px; margin-top: 20px; }
+        
+        /* Sidebar Toggle Overlay */
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; }
+        .overlay.active { display: block; }
+    </style>
 </head>
 <body>
 
-<div class="app-container">
-  
-  <div class="sidebar">
-    <div class="sidebar-header">💰 Planejador EK</div>
-    <div class="sidebar-menu">
-      <button class="sidebar-btn active" onclick="showTab(0)">📋 Plano Ideal</button>
-      <button class="sidebar-btn" onclick="showTab(1)">📊 Plano Real</button>
-      <button class="sidebar-btn" onclick="showTab(2)">⚖️ Comparativo</button>
-      <button class="sidebar-btn" onclick="showTab(3)">🔍 Análise</button>
-      <button class="sidebar-btn" onclick="showTab(4)">📈 Gráficos</button>
-      <button class="sidebar-btn" onclick="showTab(5)">🎯 Caixinhas</button>
-      <button class="sidebar-btn" onclick="showTab(6)">🧮 Simulador</button>
-      <button class="sidebar-btn" onclick="showTab(7)">🏦 Amortização</button>
-      <div style="flex:1"></div>
-      <button class="sidebar-btn" onclick="toggleTheme()" style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">🌙 Alternar Tema</button>
-    </div>
-  </div>
+<div class="mobile-top-bar">
+    <button class="btn btn-primary" id="sidebar-toggle" onclick="toggleSidebar(true)">☰ Menu</button>
+    <h3 style="font-size: 0.9rem;">💰 Planejador EK</h3>
+    <button class="btn btn-theme" onclick="toggleTheme()">🌓 Tema</button>
+</div>
 
-  <div class="content">
-
-    <div class="tab-content" id="tab0">
-      <div class="tab-desc"><span class="td-icon">📋</span> Defina aqui como seria sua vida financeira ideal. Esse plano serve como referência.</div>
-      <div class="summary-grid" id="ideal-summary"></div>
-      
-      <div class="section-title"><span class="icon">$</span> Renda</div>
-      <div class="card">
-        <div class="grid grid-3">
-          <div class="field"><label>Salário Bruto</label><input type="text" data-field="i_sal" data-type="money" placeholder="R$ 0,00"></div>
-          <div class="field"><label>INSS (auto)</label><input type="text" id="i_sal_inss" readonly></div>
-          <div class="field"><label>IRRF (auto)</label><input type="text" id="i_sal_irrf" readonly></div>
+<div id="app-wrapper">
+    <div class="overlay" id="overlay" onclick="toggleSidebar(false)"></div>
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>FINANÇAS PRO</h2>
+            <p style="font-size: 0.6rem; opacity: 0.6; margin-top: 5px;">CONTROLE TOTAL</p>
         </div>
-        <div class="grid grid-3" style="margin-top:10px">
-          <div class="field"><label>Salário Líquido (auto)</label><input type="text" id="i_sal_liq" readonly></div>
-          <div class="field"><label>Vale-Alimentação</label><input type="text" data-field="i_va" data-type="money" placeholder="R$ 0,00"></div>
-          <div class="field"><label>Bônus Bruto (Mês/Ano)</label><input type="text" data-field="i_bonus" data-type="money" placeholder="R$ 0,00"></div>
+        <div class="nav-menu">
+            <div class="nav-item active" onclick="showTab(0)">📋 Plano Ideal</div>
+            <div class="nav-item" onclick="showTab(1)">📊 Plano Real</div>
+            <div class="nav-item" onclick="showTab(2)">📈 Investimentos</div>
+            <div class="nav-item" onclick="showTab(3)">🏦 Empréstimos</div>
+            <div class="nav-item" onclick="showTab(4)">⚖️ Comparativo</div>
+            <div class="nav-item" onclick="showTab(5)">🔍 Análise</div>
+            <div class="nav-item" onclick="showTab(6)">🖼️ Gráficos</div>
+            <div class="nav-item" onclick="showTab(7)">🎯 Caixinhas</div>
+            <div class="nav-item" onclick="showTab(8)">💹 Juros Compostos</div>
+            <div class="nav-item" onclick="showTab(9)">📉 Amortização</div>
+            <div class="nav-item" onclick="showTab(10)">🚗 Financiamento</div>
         </div>
-      </div>
-
-      <div class="section-title"><span class="icon" style="background:var(--coral)">📤</span> Gastos Mensais</div>
-      <div class="card coral">
-        <div class="grid grid-3">
-          <div class="field"><label>Aluguel</label><input type="text" data-field="i_aluguel" data-type="money" placeholder="R$ 0,00"></div>
-          <div class="field"><label>Condomínio</label><input type="text" data-field="i_condo" data-type="money" placeholder="R$ 0,00"></div>
-          <div class="field"><label>Luz / Água / Gás</label><input type="text" data-field="i_contas" data-type="money" placeholder="R$ 0,00"></div>
-          <div class="field"><label>Mercado</label><input type="text" data-field="i_mercado" data-type="money" placeholder="R$ 0,00"></div>
-          <div class="field"><label>Faxina</label><input type="text" data-field="i_faxina" data-type="money" placeholder="R$ 0,00"></div>
-          <div class="field"><label>Educação</label><input type="text" data-field="i_edu" data-type="money" placeholder="R$ 0,00"></div>
-          <div class="field"><label>Veículo / Transp.</label><input type="text" data-field="i_veiculo" data-type="money" placeholder="R$ 0,00"></div>
-          <div class="field"><label>Internet / Celular</label><input type="text" data-field="i_net" data-type="money" placeholder="R$ 0,00"></div>
-          <div class="field"><label>Lazer / Quero Viver</label><input type="text" data-field="i_viver" data-type="money" placeholder="R$ 0,00"></div>
+        <div style="padding: 20px; font-size: 0.7rem; opacity: 0.5;">
+            Local Storage: Ativo ✅
         </div>
-      </div>
-    </div>
+    </nav>
 
-    <div class="tab-content hidden" id="tab1">
-      <div class="tab-desc"><span class="td-icon">📊</span> Registre aqui sua situação financeira real de hoje.</div>
-      <div class="summary-grid" id="real-summary"></div>
-      
-      <div class="section-title"><span class="icon">$</span> Renda Real</div>
-      <div class="card">
-        <div class="grid grid-3">
-          <div class="field"><label>Salário Bruto</label><input type="text" data-field="r_sal" data-type="money" placeholder="R$ 0,00"></div>
-          <div class="field"><label>INSS (auto)</label><input type="text" id="r_sal_inss" readonly></div>
-          <div class="field"><label>IRRF (auto)</label><input type="text" id="r_sal_irrf" readonly></div>
+    <main class="main-content">
+        <div id="tab-container">
+            
+            <div class="tab-content" id="tab0">
+                <div class="section-title">📋 Plano Ideal</div>
+                <div class="summary-grid" id="ideal-summary"></div>
+                
+                <div class="card">
+                    <div class="grid grid-3">
+                        <div class="field">
+                            <label>Salário Bruto (Titular)</label>
+                            <input type="text" data-field="i_sal" data-type="money" placeholder="R$ 0,00">
+                            <span class="calc-result" id="i_res_1">Líquido: R$ 0,00 (INSS/IRRF descontados)</span>
+                        </div>
+                        <div class="field">
+                            <label>Vale Alimentação</label>
+                            <input type="text" data-field="i_va" data-type="money" placeholder="R$ 0,00">
+                        </div>
+                        <div class="field">
+                            <label>Bônus Bruto</label>
+                            <input type="text" data-field="i_bonus" data-type="money" placeholder="R$ 0,00">
+                            <span class="calc-result" id="i_res_bonus">Bônus Líq: R$ 0,00</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-3" style="margin-top: 20px;">
+                        <div class="field">
+                            <label>Salário Bruto (Cônjuge)</label>
+                            <input type="text" data-field="i_sal2" data-type="money" placeholder="R$ 0,00">
+                            <span class="calc-result" id="i_res_2">Líquido: R$ 0,00</span>
+                        </div>
+                        <div class="field">
+                            <label>VA Cônjuge</label>
+                            <input type="text" data-field="i_va2" data-type="money" placeholder="R$ 0,00">
+                        </div>
+                        <div class="field">
+                            <label>Bônus Cônjuge</label>
+                            <input type="text" data-field="i_bonus2" data-type="money" placeholder="R$ 0,00">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">📤 Gastos Mensais</div>
+                <div class="card" style="border-left-color: var(--coral)">
+                    <div class="grid grid-3">
+                        <div class="field"><label>Aluguel/Moradia</label><input type="text" data-field="i_aluguel" data-type="money"></div>
+                        <div class="field"><label>Condomínio</label><input type="text" data-field="i_condo" data-type="money"></div>
+                        <div class="field"><label>Luz</label><input type="text" data-field="i_luz" data-type="money"></div>
+                        <div class="field"><label>Água</label><input type="text" data-field="i_agua" data-type="money"></div>
+                        <div class="field"><label>Mercado</label><input type="text" data-field="i_mercado" data-type="money"></div>
+                        <div class="field"><label>Faxina 🧹</label><input type="text" data-field="i_faxina" data-type="money"></div>
+                        <div class="field"><label>Educação</label><input type="text" data-field="i_edu" data-type="money"></div>
+                        <div class="field"><label>Combustível</label><input type="text" data-field="i_comb" data-type="money"></div>
+                        <div class="field"><label>Cartão Crédito</label><input type="text" data-field="i_cartao" data-type="money"></div>
+                    </div>
+                </div>
+
+                <div class="section-title">🛡️ Gestão de Sobra</div>
+                <div class="card" style="border-left-color: var(--purple)">
+                    <div class="grid grid-2">
+                        <div class="field">
+                            <label>Quanto deseja usar para viver? (Lazer/Extras)</label>
+                            <input type="text" data-field="i_viver" data-type="money" placeholder="R$ 0,00">
+                        </div>
+                        <div class="field">
+                            <label>Sobra para Amortizar/Investir</label>
+                            <input type="text" id="i_sobra_final" readonly style="font-weight: bold; color: var(--success);">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content hidden" id="tab1">
+                <div class="section-title">📊 Plano Real</div>
+                <div class="summary-grid" id="real-summary"></div>
+                <div class="card">
+                    <div class="grid grid-3">
+                        <div class="field">
+                            <label>Salário Bruto</label>
+                            <input type="text" data-field="r_sal" data-type="money">
+                            <span class="calc-result" id="r_res_1">Líquido: R$ 0,00</span>
+                        </div>
+                        <div class="field"><label>Vale Alimentação</label><input type="text" data-field="r_va" data-type="money"></div>
+                        <div class="field">
+                            <label>Bônus Bruto</label>
+                            <input type="text" data-field="r_bonus" data-type="money">
+                            <span class="calc-result" id="r_res_bonus">Bônus Líq: R$ 0,00</span>
+                        </div>
+                    </div>
+                    </div>
+                <div class="section-title">📤 Gastos Reais</div>
+                <div class="card" style="border-left-color: var(--coral)">
+                    <div class="grid grid-3">
+                        <div class="field"><label>Mercado</label><input type="text" data-field="r_mercado" data-type="money"></div>
+                        <div class="field"><label>Faxina 🧹</label><input type="text" data-field="r_faxina" data-type="money"></div>
+                        </div>
+                </div>
+            </div>
+
+            <div class="tab-content hidden" id="tab2">
+                <div class="section-title">📈 Meus Investimentos</div>
+                <div class="card">
+                    <p>Adicione aqui suas Ações, FIIs e Imóveis. O rendimento total será refletido nos seus planos.</p>
+                    <div id="invest-list"></div>
+                    <div style="margin-top: 20px; display: flex; gap: 10px;">
+                        <button class="btn btn-primary" onclick="addInvestment()">+ Adicionar Ativo</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content hidden" id="tab3">
+                <div class="section-title">🏦 Empréstimos e Dívidas</div>
+                <div class="card" style="border-left-color: var(--danger)">
+                    <div id="loan-list"></div>
+                    <button class="btn btn-primary" onclick="addLoan()">+ Novo Empréstimo</button>
+                </div>
+            </div>
+
+            <div class="tab-content hidden" id="tab6">
+                <div class="section-title">🖼️ Visão Gráfica: Real vs Ideal</div>
+                <div class="grid grid-2">
+                    <div class="card">
+                        <h3>Distribuição de Renda</h3>
+                        <div class="chart-container"><canvas id="chartRenda"></canvas></div>
+                    </div>
+                    <div class="card">
+                        <h3>Comparativo de Gastos</h3>
+                        <div class="chart-container"><canvas id="chartGastos"></canvas></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content hidden" id="tab10">
+                <div class="section-title">🚗 Simulação de Financiamento</div>
+                <div class="card">
+                    <div class="grid grid-3">
+                        <div class="field"><label>Valor do Bem</label><input type="text" id="fin_valor" data-type="money"></div>
+                        <div class="field"><label>Entrada</label><input type="text" id="fin_entrada" data-type="money"></div>
+                        <div class="field"><label>Juros Anual (%)</label><input type="number" id="fin_juros"></div>
+                        <div class="field"><label>Prazo (Meses)</label><input type="number" id="fin_prazo"></div>
+                    </div>
+                    <div id="fin-result" style="margin-top: 20px; padding: 15px; background: var(--bg); border-radius: 8px;">
+                        Preencha os dados para simular a parcela.
+                    </div>
+                </div>
+            </div>
+
         </div>
-        <div class="grid grid-3" style="margin-top:10px">
-          <div class="field"><label>Salário Líquido (auto)</label><input type="text" id="r_sal_liq" readonly></div>
-          <div class="field"><label>Vale-Alimentação</label><input type="text" data-field="r_va" data-type="money" placeholder="R$ 0,00"></div>
-          <div class="field"><label>Bônus Bruto</label><input type="text" data-field="r_bonus" data-type="money" placeholder="R$ 0,00"></div>
-        </div>
-      </div>
-
-      <div class="section-title"><span class="icon" style="background:var(--coral)">📤</span> Gastos Mensais Reais</div>
-      <div class="card coral">
-        <div class="grid grid-3">
-          <div class="field"><label>Aluguel</label><input type="text" data-field="r_aluguel" data-type="money" placeholder="R$ 0,00"></div>
-          <div class="field"><label>Condomínio</label><input type="text" data-field="r_condo" data-type="money" placeholder="R$ 0,00"></div>
-          <div class="field"><label>Luz / Água / Gás</label><input type="text" data-field="r_contas" data-type="money" placeholder="R$ 0,00"></div>
-          <div class="field"><label>Mercado</label><input type="text" data-field="r_mercado" data-type="money" placeholder="R$ 0,00"></div>
-          <div class="field"><label>Faxina</label><input type="text" data-field="r_faxina" data-type="money" placeholder="R$ 0,00"></div>
-          <div class="field"><label>Educação</label><input type="text" data-field="r_edu" data-type="money" placeholder="R$ 0,00"></div>
-          <div class="field"><label>Veículo / Transp.</label><input type="text" data-field="r_veiculo" data-type="money" placeholder="R$ 0,00"></div>
-          <div class="field"><label>Internet / Celular</label><input type="text" data-field="r_net" data-type="money" placeholder="R$ 0,00"></div>
-          <div class="field"><label>Lazer / Quero Viver</label><input type="text" data-field="r_viver" data-type="money" placeholder="R$ 0,00"></div>
-        </div>
-      </div>
-
-      <div class="section-title"><span class="icon" style="background:var(--coral)">🏦</span> Empréstimos / Dívidas Reais</div>
-      <div id="real-emprestimos"></div>
-      <button class="btn btn-danger btn-sm btn-add" onclick="addLoan()">+ Empréstimo</button>
-    </div>
-
-    <div class="tab-content hidden" id="tab2">
-      <div class="tab-desc"><span class="td-icon">⚖️</span> Visão lado a lado (Ideal vs Real).</div>
-      <div class="summary-grid" id="comp-summary"></div>
-      <div class="section-title"><span class="icon">⚖️</span> Comparativo Detalhado</div>
-      <div class="card" id="compare-table"></div>
-    </div>
-
-    <div class="tab-content hidden" id="tab3">
-      <div class="tab-desc"><span class="td-icon">🔍</span> Inteligência indicando desvios e acertos.</div>
-      <div class="summary-grid" id="analysis-summary"></div>
-      <div class="section-title"><span class="icon" style="background:var(--danger)">⚠️</span> Pontos de Atenção</div>
-      <div id="analysis-bad"></div>
-      <div class="section-title"><span class="icon" style="background:var(--success)">✅</span> No Caminho Certo</div>
-      <div id="analysis-good"></div>
-    </div>
-
-    <div class="tab-content hidden" id="tab4">
-      <div class="tab-desc"><span class="td-icon">📈</span> Representação visual do seu orçamento (Ideal vs Real).</div>
-      <div class="card">
-        <div class="chart-container">
-          <canvas id="mainChart"></canvas>
-        </div>
-      </div>
-    </div>
-
-    <div class="tab-content hidden" id="tab5">
-      <div class="tab-desc"><span class="td-icon">🎯</span> Crie caixinhas para organizar seus objetivos de poupança.</div>
-      <div id="caixinhas-container"></div>
-      <div style="text-align:center;margin-top:16px"><button class="btn btn-accent" onclick="addCaixinha()" style="padding:14px 32px;font-size:1rem">+ Nova Caixinha</button></div>
-    </div>
-
-    <div class="tab-content hidden" id="tab6">
-      <div class="tab-desc"><span class="td-icon">🧮</span> Simule o poder dos juros compostos.</div>
-      <div class="summary-grid" id="sim-summary"></div>
-      <div class="section-title"><span class="icon">🧮</span> Parâmetros</div>
-      <div class="card">
-        <div class="grid grid-3">
-          <div class="field"><label>Investimento Inicial</label><input type="text" id="sim_inicial" data-type="money" placeholder="R$ 0,00"></div>
-          <div class="field">
-            <label style="display:flex; justify-content:space-between;">
-              Aporte Mensal 
-              <button onclick="usarSobraReal()" style="background:none;border:none;color:var(--primary);cursor:pointer;font-size:0.7rem;font-weight:bold;">Usar Sobra Real</button>
-            </label>
-            <input type="text" id="sim_aporte" data-type="money" placeholder="R$ 0,00">
-          </div>
-          <div class="field">
-            <label>Taxa de Rendimento (% a.m.)</label>
-            <input type="number" id="sim_taxa" step="0.01" placeholder="Ex: 0.8">
-          </div>
-        </div>
-        <div class="grid grid-3" style="margin-top:12px">
-          <div class="field"><label>Período (Meses)</label><input type="number" id="sim_periodo" placeholder="Ex: 120"></div>
-          <div></div>
-          <div style="display:flex;align-items:flex-end"><button class="btn btn-primary" onclick="runSim()" style="width:100%;padding:12px">Simular</button></div>
-        </div>
-      </div>
-      <div id="sim-results" style="margin-top:24px"></div>
-    </div>
-
-    <div class="tab-content hidden" id="tab7">
-      <div class="tab-desc"><span class="td-icon">🏦</span> Avalie parcelas de um financiamento ou empréstimo. O sistema informará automaticamente se a parcela cabe na sua sobra de caixa real atual.</div>
-      <div id="fin-summary"></div>
-      <div class="section-title"><span class="icon" style="background:var(--purple)">🏦</span> Dados do Financiamento/Empréstimo</div>
-      <div class="card purple">
-        <div class="grid grid-3">
-          <div class="field"><label>Valor Solicitado/Saldo</label><input type="text" id="fin_valor" data-type="money" placeholder="R$ 0,00"></div>
-          <div class="field"><label>Parcelas Restantes</label><input type="number" id="fin_parcelas" placeholder="Ex: 60"></div>
-          <div class="field"><label>Taxa Juros Mensal (%)</label><input type="number" id="fin_juros" step="0.01" placeholder="Ex: 1.5"></div>
-        </div>
-        <div style="margin-top:14px;text-align:center"><button class="btn btn-purple" onclick="calcFin()" style="padding:14px 40px;font-size:1rem">Calcular Parcela & Viabilidade</button></div>
-      </div>
-      <div id="fin-results" style="margin-top:24px"></div>
-    </div>
-
-  </div>
+    </main>
 </div>
 
 <script>
-// INITIAL SETUP
-const D={}; let debounceTimers={}, loanCounter=0;
-let globalSobraReal = 0;
-let mainChartInst = null;
+    const state = {
+        i: { gastos: {}, sal: 0, bonus: 0 },
+        r: { gastos: {}, sal: 0, bonus: 0 },
+        invests: [],
+        loans: []
+    };
 
-const fmt=v=>'R$ '+(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-const parse=s=>{if(!s)return 0;return parseFloat(String(s).replace(/[R$\s.]/g,'').replace(',','.'))||0;};
+    // DARK THEME
+    function toggleTheme() {
+        document.body.classList.toggle('dark-theme');
+        localStorage.setItem('theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+    }
 
-function moneyMask(el){let v=el.value.replace(/\D/g,'');v=(parseInt(v||'0')/100).toLocaleString('pt-BR',{minimumFractionDigits:2});el.value='R$ '+v;}
+    // SIDEBAR 
+    function toggleSidebar(open) {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        if(open) {
+            sidebar.classList.add('open');
+            overlay.classList.add('active');
+        } else {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+        }
+    }
 
-document.addEventListener('input',e=>{
-  const el=e.target;
-  if(el.tagName==='INPUT'&&el.dataset.type==='money')moneyMask(el);
-  const k=el.dataset.field||el.id||'x'+Math.random();
-  clearTimeout(debounceTimers[k]);
-  debounceTimers[k]=setTimeout(()=>{
-    if(el.dataset.field)D[el.dataset.field]=el.dataset.type==='money'?parse(el.value):el.value;
+    // TABS
+    function showTab(idx) {
+        document.querySelectorAll('.tab-content').forEach((t, i) => t.classList.toggle('hidden', i !== idx));
+        document.querySelectorAll('.nav-item').forEach((n, i) => n.classList.toggle('active', i === idx));
+        if(window.innerWidth < 1024) toggleSidebar(false); // Auto-hide
+        if(idx === 6) renderCharts();
+    }
+
+    // MÁSCARA MOEDA & VALIDAÇÕES
+    function moneyMask(el) {
+        let v = el.value.replace(/\D/g, '');
+        if (v === "") v = "0";
+        v = (parseInt(v) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        el.value = 'R$ ' + v;
+    }
+
+    function parseMoney(str) {
+        if (!str) return 0;
+        return parseFloat(str.replace(/[R$\s.]/g, '').replace(',', '.')) || 0;
+    }
+
+    // CALCULOS DE IMPOSTO (SIMPLIFICADO)
+    function calcNet(bruto) {
+        if(bruto <= 0) return 0;
+        const inss = Math.min(bruto * 0.11, 900); // Simplificado
+        const baseIR = bruto - inss;
+        let ir = 0;
+        if(baseIR > 2259) ir = baseIR * 0.15 - 380; // Simplificado
+        return { liq: bruto - inss - Math.max(0, ir), inss, ir };
+    }
+
+    // CORE RECALC
+    function recalc() {
+        ['i', 'r'].forEach(p => {
+            const bruto = parseMoney(document.querySelector(`[data-field="${p}_sal"]`)?.value);
+            const data = calcNet(bruto);
+            const va = parseMoney(document.querySelector(`[data-field="${p}_va"]`)?.value);
+            const bonus = parseMoney(document.querySelector(`[data-field="${p}_bonus"]`)?.value) * 0.73; // Liq aprox
+            
+            const totalLiq = data.liq + va;
+            document.getElementById(`${p}_res_1`).innerText = `Líquido: R$ ${data.liq.toLocaleString('pt-BR')} (VA: R$ ${va.toLocaleString('pt-BR')})`;
+            document.getElementById(`${p}_res_bonus`).innerText = `Renda Bônus (Líq): R$ ${bonus.toLocaleString('pt-BR')}`;
+
+            // Soma Gastos
+            let gastoTotal = 0;
+            document.querySelectorAll(`[data-field^="${p}_"]`).forEach(input => {
+                if(!input.dataset.field.includes('sal') && !input.dataset.field.includes('va') && !input.dataset.field.includes('bonus') && !input.dataset.field.includes('viver')) {
+                    gastoTotal += parseMoney(input.value);
+                }
+            });
+
+            const saldo = totalLiq - gastoTotal;
+            const viver = parseMoney(document.querySelector(`[data-field="${p}_viver"]`)?.value);
+            const sobraFinal = saldo - viver;
+
+            document.getElementById(`${p}_sobra_final`).value = `R$ ${sobraFinal.toLocaleString('pt-BR')}`;
+            
+            // Render Summary (Simplificado)
+            renderSummary(p, totalLiq, bonus, gastoTotal, saldo);
+        });
+    }
+
+    function renderSummary(prefix, renda, bonus, gastos, saldo) {
+        const container = document.getElementById(`${prefix}-summary`);
+        if(!container) return;
+        container.innerHTML = `
+            <div class="summary-box"><span>Renda Mensal</span><span class="value">R$ ${renda.toLocaleString('pt-BR')}</span></div>
+            <div class="summary-box" style="border-top-color: var(--accent)"><span>Renda Bônus</span><span class="value">R$ ${bonus.toLocaleString('pt-BR')}</span></div>
+            <div class="summary-box" style="border-top-color: var(--coral)"><span>Gastos</span><span class="value">R$ ${gastos.toLocaleString('pt-BR')}</span></div>
+            <div class="summary-box" style="border-top-color: var(--success)"><span>Saldo</span><span class="value">R$ ${saldo.toLocaleString('pt-BR')}</span></div>
+        `;
+    }
+
+    // CHARTS (CHART.JS)
+    function renderCharts() {
+        const ctxR = document.getElementById('chartRenda').getContext('2d');
+        // Exemplo de implementação de gráfico
+        new Chart(ctxR, {
+            type: 'bar',
+            data: {
+                labels: ['Plano Ideal', 'Plano Real'],
+                datasets: [{
+                    label: 'Renda Disponível',
+                    data: [5000, 4800], // Pegar valores reais do state
+                    backgroundColor: ['#2ab5b2', '#f5a623']
+                }]
+            }
+        });
+    }
+
+    // EVENT LISTENERS
+    document.addEventListener('input', (e) => {
+        if (e.target.dataset.type === 'money') {
+            moneyMask(e.target);
+            recalc();
+        }
+    });
+
+    // INIT
+    if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-theme');
     recalc();
-  },1000);
-});
-
-// UI LOGIC
-function showTab(n){
-  document.querySelectorAll('.sidebar-btn').forEach((t,i)=>t.classList.toggle('active',i===n));
-  document.querySelectorAll('.tab-content').forEach((t,i)=>t.classList.toggle('hidden',i!==n));
-  if(n === 4) renderChart(); // Update chart when tab opens
-}
-
-function toggleTheme(){
-  document.body.classList.toggle('dark');
-  if(mainChartInst) renderChart(); // Re-render chart to adjust colors
-}
-
-// CALCULATION LOGIC
-function calcINSS(b){if(b<=0)return 0;let r=0;const f=[[1518,.075],[2793.88,.09],[4190.83,.12],[8157.41,.14]];let a=0;for(const[l,q]of f){if(b<=l){r+=(b-a)*q;return r;}r+=(l-a)*q;a=l;}return r;}
-function calcIRRF(b,inss){const base=b-inss;if(base<=2259.20)return 0;if(base<=2826.65)return base*.075-169.44;if(base<=3751.05)return base*.15-381.44;if(base<=4664.68)return base*.225-662.77;return base*.275-896;}
-
-function updateSalaryFields(p){
-  const bruto=parse(document.querySelector(`[data-field="${p}_sal"]`)?.value)||0;
-  const inss=calcINSS(bruto),irrf=Math.max(0,calcIRRF(bruto,inss)),liq=bruto-inss-irrf;
-  const $=id=>document.getElementById(id);
-  if($(p+'_sal_inss'))$(p+'_sal_inss').value=fmt(inss);
-  if($(p+'_sal_irrf'))$(p+'_sal_irrf').value=fmt(irrf);
-  if($(p+'_sal_liq'))$(p+'_sal_liq').value=fmt(liq);
-  const bb=parse(document.querySelector(`[data-field="${p}_bonus"]`)?.value)||0;
-  return{salLiq:liq, bonus:bb};
-}
-
-function calcPlan(p){
-  const liq=updateSalaryFields(p);
-  const va=parse(document.querySelector(`[data-field="${p}_va"]`)?.value)||0;
-  const rendaTotal=liq.salLiq+va+(liq.bonus/12); // Diluindo bônus anual por mês para análise mensal
-  
-  const gk=['aluguel','condo','contas','mercado','faxina','edu','veiculo','net','viver'];
-  const gastos={}; let gastoTotal=0;
-  gk.forEach(k=>{const v=parse(document.querySelector(`[data-field="${p}_${k}"]`)?.value)||0;gastos[k]=v;gastoTotal+=v;});
-  
-  let lP=0;
-  document.querySelectorAll('[data-loan]').forEach(el=>{
-    if(p==='r' && el.dataset.k==='vlr_parcela') lP+=parse(el.value);
-  });
-  
-  const gTL=gastoTotal+lP;
-  const saldo=rendaTotal-gTL;
-  
-  if(p==='r') globalSobraReal = saldo;
-  
-  return{salLiq:liq.salLiq, va, bonusMesLiq:liq.bonus/12, rendaTotal, gastos, gastoTotal, gastoTotalComLoans:gTL, loanParcMes:lP, saldo};
-}
-
-function recalc(){
-  const i=calcPlan('i'), r=calcPlan('r');
-  
-  const renderSumm=(id,p,showLoan)=>{
-    document.getElementById(id).innerHTML=`
-    <div class="summary-box"><div class="label">Renda Mensal (c/bônus diluído)</div><div class="value">${fmt(p.rendaTotal)}</div></div>
-    <div class="summary-box coral"><div class="label">Gastos Totais</div><div class="value">${fmt(p.gastoTotalComLoans)}</div></div>
-    <div class="summary-box ${p.saldo>=0?'success':'coral'}"><div class="label">Sobra Mensal</div><div class="value ${p.saldo>=0?'positive':'negative'}">${fmt(p.saldo)}</div></div>
-    ${showLoan?`<div class="summary-box purple"><div class="label">Total Parcelas Empréstimos</div><div class="value negative">${fmt(p.loanParcMes)}</div></div>`:''}`;
-  };
-  
-  renderSumm('ideal-summary',i,false);
-  renderSumm('real-summary',r,true);
-  
-  // COMPARE TAB
-  const items=[['Salário Líquido',i.salLiq,r.salLiq],['VA',i.va,r.va],['Bônus (mês)',i.bonusMesLiq,r.bonusMesLiq],['─ RENDA T.',i.rendaTotal,r.rendaTotal],
-  ['Aluguel',i.gastos.aluguel,r.gastos.aluguel],['Condomínio',i.gastos.condo,r.gastos.condo],['Contas',i.gastos.contas,r.gastos.contas],
-  ['Mercado',i.gastos.mercado,r.gastos.mercado],['Faxina',i.gastos.faxina,r.gastos.faxina],['Educação',i.gastos.edu,r.gastos.edu],
-  ['Veículo',i.gastos.veiculo,r.gastos.veiculo],['Internet',i.gastos.net,r.gastos.net],['Quero Viver',i.gastos.viver,r.gastos.viver],
-  ['Empréstimos',0,r.loanParcMes],['─ GASTOS T.',i.gastoTotal,r.gastoTotalComLoans],['─ SOBRA',i.saldo,r.saldo]];
-  
-  let h=`<div class="compare-row header"><div>Item</div><div>Ideal</div><div>Real</div><div>Diferença</div></div>`;
-  items.forEach(([n,iv,rv])=>{
-    const d=rv-iv; const badGastos=['Aluguel','Condomínio','Contas','Mercado','Faxina','Educação','Veículo','Internet','Empréstimos'];
-    const it=n.startsWith('─'); let bc='badge-success';
-    if(badGastos.includes(n)&&d>0)bc='badge-danger'; else if(!badGastos.includes(n)&&d<0)bc='badge-danger'; if(Math.abs(d)<.01)bc='badge-warning';
-    h+=`<div class="compare-row" style="${it?'font-weight:700;':''}"><div>${n}</div><div>${fmt(iv)}</div><div>${fmt(rv)}</div><div><span class="badge ${bc}">${d>=0?'+':''}${fmt(d)}</span></div></div>`;
-  });
-  document.getElementById('compare-table').innerHTML=h;
-
-  // ANALYSIS TAB
-  const bad=[],good=[];
-  if(r.rendaTotal<i.rendaTotal&&i.rendaTotal>0) bad.push({title:`Renda abaixo`,desc:`Real ${fmt(r.rendaTotal)} vs Ideal ${fmt(i.rendaTotal)}.`});
-  if(r.gastos.viver<i.gastos.viver&&i.gastos.viver>0) bad.push({title:`Qualidade de vida comprometida`,desc:`Você separou ${fmt(r.gastos.viver)} para 'Viver', mas queria ${fmt(i.gastos.viver)}.`});
-  if(r.saldo<i.saldo&&i.saldo>0) bad.push({title:`Sobra abaixo em ${fmt(i.saldo-r.saldo)}`,desc:`Real ${fmt(r.saldo)} vs Ideal ${fmt(i.saldo)}.`});
-  else if(r.saldo>0) good.push({title:'Sobra mensal positiva',desc:`Você guarda ${fmt(r.saldo)}/mês. Ótimo para investir.`});
-  
-  const rc=(a,t)=>a.length?a.map(x=>`<div class="analysis-card"><div class="indicator ${t}"></div><div><h4>${x.title}</h4><p>${x.desc}</p></div></div>`).join(''):'<p style="color:var(--text-light);font-size:0.9rem">Nenhum dado encontrado para análise.</p>';
-  document.getElementById('analysis-bad').innerHTML=rc(bad,'bad');
-  document.getElementById('analysis-good').innerHTML=rc(good,'good');
-
-  if(document.getElementById('tab4').classList.contains('hidden') === false) renderChart();
-}
-
-// EMPRÉSTIMOS REAIS
-function addLoan(){
-  const id=++loanCounter; const div=document.createElement('div'); div.className='loan-item'; div.id='loan-'+id;
-  div.innerHTML=`<button class="remove-btn" onclick="document.getElementById('loan-${id}').remove();recalc()">&times;</button>
-  <div class="grid grid-3"><div class="field"><label>Descrição</label><input placeholder="Ex: Financiamento Carro"></div>
-  <div class="field"><label>Saldo Devedor</label><input data-type="money" placeholder="R$ 0,00"></div>
-  <div class="field"><label>Vlr Parcela Mês</label><input data-loan="true" data-k="vlr_parcela" data-type="money" placeholder="R$ 0,00" oninput="moneyMask(this);recalc()"></div></div>`;
-  document.getElementById('real-emprestimos').appendChild(div);
-}
-
-// GRÁFICOS (Chart.js)
-function renderChart(){
-  const i = calcPlan('i'), r = calcPlan('r');
-  const ctx = document.getElementById('mainChart');
-  if(!ctx) return;
-  const isDark = document.body.classList.contains('dark');
-  const textColor = isDark ? '#edf2f7' : '#2d3748';
-  Chart.defaults.color = textColor;
-  
-  if(mainChartInst) mainChartInst.destroy();
-  mainChartInst = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['Renda', 'Gastos Totais', 'Sobra'],
-      datasets: [
-        { label: 'Ideal', data: [i.rendaTotal, i.gastoTotal, i.saldo], backgroundColor: '#2ab5b2', borderRadius: 6 },
-        { label: 'Real', data: [r.rendaTotal, r.gastoTotalComLoans, r.saldo], backgroundColor: '#f5a623', borderRadius: 6 }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom' } },
-      scales: {
-        y: { ticks: { callback: function(value) { return 'R$ ' + value; } } }
-      }
-    }
-  });
-}
-
-// CAIXINHAS
-let cxCounter=0;
-function addCaixinha(){
-  const id=++cxCounter; const div=document.createElement('div'); div.className='caixinha-card'; div.id='cx-'+id;
-  div.innerHTML=`<button class="remove-btn" onclick="document.getElementById('cx-${id}').remove()">&times;</button>
-  <div class="grid grid-2" style="margin-bottom:12px"><div class="field"><label>Nome / Meta</label><input id="cx_n_${id}" placeholder="Ex: Viagem"></div>
-  <div class="field"><label>Valor Final</label><input id="cx_m_${id}" data-type="money" oninput="moneyMask(this);calcCx(${id})"></div></div>
-  <div class="grid grid-2"><div class="field"><label>Aporte Mensal</label><input id="cx_a_${id}" data-type="money" oninput="moneyMask(this);calcCx(${id})"></div>
-  <div class="field"><label>Já guardado</label><input id="cx_g_${id}" data-type="money" oninput="moneyMask(this);calcCx(${id})"></div></div>
-  <div class="caixinha-progress"><div class="fill" id="cx_b_${id}" style="width:0%"></div><span class="pct" id="cx_p_${id}">0%</span></div>
-  <div class="caixinha-result" id="cx_r_${id}">Preencha para calcular o tempo estimado.</div>`;
-  document.getElementById('caixinhas-container').appendChild(div);
-}
-function calcCx(id){
-  const m=parse(document.getElementById('cx_m_'+id).value), a=parse(document.getElementById('cx_a_'+id).value), g=parse(document.getElementById('cx_g_'+id).value);
-  const pb=document.getElementById('cx_b_'+id), pt=document.getElementById('cx_p_'+id), res=document.getElementById('cx_r_'+id);
-  if(m<=0)return; const pct=Math.min(100,(g/m)*100); pb.style.width=pct+'%'; pt.innerText=pct.toFixed(1)+'%';
-  if(g>=m){res.innerHTML='🎉 Meta Atingida!'; pb.style.background='var(--success)'; return;}
-  pb.style.background='linear-gradient(90deg,var(--primary),var(--accent))';
-  if(a<=0){res.innerHTML=`Falta ${fmt(m-g)}`; return;}
-  const meses = Math.ceil((m-g)/a);
-  res.innerHTML=`Falta ${fmt(m-g)}. Depositando ${fmt(a)}/mês, você atinge a meta em aproximadamente <b>${meses} meses</b>.`;
-}
-
-// SIMULADOR JUROS COMPOSTOS
-function usarSobraReal(){
-  const input = document.getElementById('sim_aporte');
-  if(globalSobraReal > 0) {
-    input.value = fmt(globalSobraReal);
-    // Atualiza lógica
-    const fakeEvent = new Event('input', { bubbles: true });
-    input.dispatchEvent(fakeEvent);
-  } else {
-    alert("Sua sobra real mensal não é positiva no momento.");
-  }
-}
-
-function runSim(){
-  const ini=parse(document.getElementById('sim_inicial').value), ap=parse(document.getElementById('sim_aporte').value),
-        taxa=(parseFloat(document.getElementById('sim_taxa').value)||0)/100, per=parseInt(document.getElementById('sim_periodo').value)||0;
-  if(per<=0)return; let s=ini, ta=ini, tj=0; let rows='';
-  for(let m=1;m<=per;m++){
-    const j=s*taxa; tj+=j; s+=j+ap; ta+=ap;
-    if(m<=12 || m%12===0 || m===per) {
-      rows+=`<tr><td>${m}</td><td>${fmt(ap)}</td><td>${fmt(j)}</td><td>${fmt(ta)}</td><td>${fmt(tj)}</td><td>${fmt(s)}</td></tr>`;
-    }
-  }
-  document.getElementById('sim-summary').innerHTML=`<div class="summary-box success"><div class="label">Valor Final (Saldo)</div><div class="value positive">${fmt(s)}</div></div><div class="summary-box"><div class="label">Total Investido</div><div class="value">${fmt(ta)}</div></div><div class="summary-box accent"><div class="label">Total Juros Ganhos</div><div class="value">${fmt(tj)}</div></div>`;
-  document.getElementById('sim-results').innerHTML=`<div class="sim-scroll"><table class="sim-table"><thead><tr><th>Mês</th><th>Aporte</th><th>Juros (mês)</th><th>Total Invest.</th><th>Juros Acumulados</th><th>Saldo</th></tr></thead><tbody>${rows}</tbody></table><p style="text-align:center;font-size:0.8rem;padding:10px;color:var(--text-light)">Exibindo os 12 primeiros meses e fechamentos anuais para simplificar.</p></div>`;
-}
-
-// FINANCIAMENTO / AMORTIZAÇÃO / VIABILIDADE
-function calcFin(){
-  const vlr=parse(document.getElementById('fin_valor').value), 
-        parc=parseInt(document.getElementById('fin_parcelas').value)||0, 
-        tx=(parseFloat(document.getElementById('fin_juros').value)||0)/100;
-  
-  if(vlr<=0 || parc<=0) return;
-
-  // Calculo Parcela PRICE (Simples)
-  const parcela = (vlr * tx * Math.pow(1+tx, parc)) / (Math.pow(1+tx, parc) - 1);
-  const total = parcela * parc;
-  const jurosTot = total - vlr;
-
-  let compHtml = '';
-  if(globalSobraReal >= parcela) {
-    compHtml = `<div class="info-box" style="background:rgba(72,187,120,0.1); border-color:var(--success)">
-      <strong style="color:var(--success);font-size:1.1rem">✅ CABE NO SEU ORÇAMENTO ATUAL!</strong>
-      Sua sobra mensal real é de ${fmt(globalSobraReal)}, que é maior que a parcela de ${fmt(parcela)}.
-    </div>`;
-  } else {
-    compHtml = `<div class="info-box" style="background:rgba(245,101,101,0.1); border-color:var(--danger)">
-      <strong style="color:var(--danger);font-size:1.1rem">❌ NÃO CABE NO ORÇAMENTO ATUAL!</strong>
-      A parcela de ${fmt(parcela)} ultrapassa sua sobra real que é de apenas ${fmt(globalSobraReal)}. Ajuste seus gastos no Plano Real!
-    </div>`;
-  }
-
-  document.getElementById('fin-summary').innerHTML = compHtml;
-  document.getElementById('fin-results').innerHTML = `<div class="summary-grid">
-    <div class="summary-box blue"><div class="label">Valor da Parcela</div><div class="value">${fmt(parcela)}</div></div>
-    <div class="summary-box coral"><div class="label">Total de Juros Pagos</div><div class="value negative">${fmt(jurosTot)}</div></div>
-    <div class="summary-box"><div class="label">Valor Total Final</div><div class="value">${fmt(total)}</div></div>
-  </div>`;
-}
 
 </script>
 </body>
