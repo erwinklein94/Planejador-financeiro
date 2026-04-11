@@ -3,271 +3,305 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EK FINANCE PRO — Sidebar Edition</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+<title>Planejador Financeiro Pro — EK</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-:root {
-    --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --text-light: #64748b;
-    --primary: #2ab5b2; --primary-dark: #1e8a87; --accent: #8b5cf6;
-    --border: #e2e8f0; --shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-    --danger: #ef4444; --success: #22c55e;
-    --sidebar-width: 260px;
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#f0f4f8;--card:#fff;--primary:#2ab5b2;--primary-dark:#1e9e9b;--accent:#f5a623;--coral:#f06868;--blue:#4a90d9;
+--text:#2d3748;--text-light:#718096;--border:#e2e8f0;--success:#48bb78;--danger:#f56565;--warning:#ecc94b;
+--shadow:0 2px 12px rgba(0,0,0,.08);--radius:12px;--purple:#805ad5;
 }
-
-[data-theme="dark"] {
-    --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --text-light: #94a3b8;
-    --border: #334155; --shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
-}
-
-* { margin: 0; padding: 0; box-sizing: border-box; transition: all 0.3s ease; }
-body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
-
-/* --- SIDEBAR LOGIC --- */
-.sidebar {
-    position: fixed; top: 0; left: -260px; width: var(--sidebar-width); height: 100%;
-    background: var(--card); border-right: 1px solid var(--border); z-index: 1000;
-    display: flex; flex-direction: column; box-shadow: var(--shadow);
-}
-.sidebar.open { left: 0; }
-
-.sidebar-header { padding: 20px; background: var(--primary); color: white; display: flex; align-items: center; justify-content: space-between; }
-
-.nav-links { flex: 1; padding: 20px 0; }
-.nav-item { 
-    padding: 15px 25px; cursor: pointer; display: flex; align-items: center; gap: 12px;
-    font-weight: 600; color: var(--text-light); border-left: 4px solid transparent;
-}
-.nav-item:hover { background: rgba(42,181,178,0.1); color: var(--primary); }
-.nav-item.active { background: rgba(42,181,178,0.1); color: var(--primary); border-left-color: var(--primary); }
-
-/* --- MAIN CONTENT ADJUSTMENT --- */
-.main-wrapper { margin-left: 0; padding: 20px; transition: margin 0.3s; }
-.top-bar { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
-
-/* Botão Flutuante / Hambúrguer */
-.menu-toggle {
-    background: var(--primary); color: white; border: none; padding: 10px;
-    border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 5px;
-}
-
-/* --- UI COMPONENTS (CARDS, GRIDS, ETC) --- */
-.card { background: var(--card); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: var(--shadow); border: 1px solid var(--border); }
-.grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
-.field label { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 0.5rem; color: var(--text-light); }
-input { width: 100%; padding: 0.75rem; border: 1.5px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); font-size: 1rem; }
-.stat-card { text-align: center; padding: 1.5rem; border-radius: 12px; border: 2px solid var(--primary); background: rgba(42,181,178,0.05); }
-.stat-value { font-family: 'Space Mono', monospace; font-size: 1.8rem; font-weight: 700; }
-
-.btn { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
-.btn-export { background: var(--accent); color: white; width: 100%; }
-
-.hidden { display: none; }
-.overlay { 
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-    background: rgba(0,0,0,0.5); z-index: 999; display: none; 
-}
-.overlay.active { display: block; }
-
-@media (min-width: 1024px) {
-    .sidebar { left: 0; }
-    .main-wrapper { margin-left: var(--sidebar-width); }
-    .menu-toggle, .overlay { display: none; }
-}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.app-header{background:linear-gradient(135deg,#2ab5b2,#1a8a87);padding:20px 32px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 20px rgba(42,181,178,.3)}
+.app-header h1{color:#fff;font-family:'Space Mono',monospace;font-size:1.4rem;letter-spacing:-0.5px}
+.app-header span{color:rgba(255,255,255,.8);font-size:.85rem}
+.tabs{display:flex;background:#fff;border-bottom:3px solid var(--primary);overflow-x:auto}
+.tab{padding:14px 20px;cursor:pointer;font-weight:600;font-size:.82rem;color:var(--text-light);border:none;background:none;transition:.2s;white-space:nowrap;position:relative}
+.tab:hover{color:var(--primary)}
+.tab.active{color:#fff;background:var(--primary)}
+.tab.active::after{content:'';position:absolute;bottom:-3px;left:0;right:0;height:3px;background:var(--accent)}
+.content{max-width:1200px;margin:0 auto;padding:24px}
+.section-title{font-family:'Space Mono',monospace;font-size:1.05rem;color:var(--primary-dark);margin:24px 0 16px;padding-bottom:8px;border-bottom:3px solid var(--primary);display:flex;align-items:center;justify-content:space-between}
+.section-title div{display:flex;align-items:center;gap:10px}
+.section-title .icon{width:28px;height:28px;background:var(--primary);color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.85rem}
+.card{background:var(--card);border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:var(--shadow);border-left:4px solid var(--primary);transition:transform .15s}
+.card.accent{border-left-color:var(--accent)}.card.coral{border-left-color:var(--coral)}.card.blue{border-left-color:var(--blue)}.card.purple{border-left-color:var(--purple)}
+.grid{display:grid;gap:12px}
+.grid-2{grid-template-columns:1fr 1fr}.grid-3{grid-template-columns:1fr 1fr 1fr}.grid-4{grid-template-columns:1fr 1fr 1fr 1fr}.grid-5{grid-template-columns:1fr 1fr 1fr 1fr 1fr}
+@media(max-width:768px){.grid-2,.grid-3,.grid-4,.grid-5{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:.75rem;font-weight:600;color:var(--text-light);text-transform:uppercase;letter-spacing:.5px}
+.field input,.field select{padding:10px 12px;border:2px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.92rem;transition:.2s;background:#fafbfc}
+.field input:focus,.field select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(42,181,178,.15)}
+.field input[readonly]{background:#e8f5f5;color:var(--primary-dark);cursor:default;font-weight:600;border-color:#b2dfdb}
+.btn{padding:10px 20px;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;transition:.2s;font-size:.85rem;display:inline-flex;align-items:center;gap:8px}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-dark)}
+.btn-accent{background:var(--accent);color:#fff}.btn-accent:hover{background:#e09515}
+.btn-pdf{background:#e74c3c;color:#fff}.btn-pdf:hover{background:#c0392b}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin:16px 0}
+.summary-box{background:#fff;border-radius:var(--radius);padding:18px;text-align:center;box-shadow:var(--shadow);border-top:4px solid var(--primary)}
+.summary-box .value{font-family:'Space Mono',monospace;font-size:1.3rem;font-weight:700;margin-top:4px}
+.chart-container{background:#fff;border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:var(--shadow);height:300px;display:flex;justify-content:center;align-items:center}
+.hidden{display:none}
+.inv-item,.loan-item,.extra-item{background:#f7fafc;border-radius:8px;padding:14px;margin-bottom:10px;border:1px solid var(--border);position:relative}
+.remove-btn{position:absolute;top:8px;right:8px;background:var(--coral);color:#fff;border:none;width:24px;height:24px;border-radius:50%;cursor:pointer}
+.compare-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px;padding:10px 0;border-bottom:1px solid var(--border);align-items:center;font-size:.88rem}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:600}
+.badge-success{background:#c6f6d5;color:#276749}.badge-danger{background:#fed7d7;color:#9b2c2c}.badge-warning{background:#fefcbf;color:#975a16}
 </style>
 </head>
-<body data-theme="light">
+<body>
+<div class="app-header"><h1>💰 Planejador Financeiro Pro</h1><button class="btn btn-pdf btn-sm" onclick="exportPDF()">📄 Gerar Relatório PDF</button></div>
+<div class="tabs">
+<div class="tab active" onclick="showTab(0)">📋 Plano Ideal</div>
+<div class="tab" onclick="showTab(1)">📊 Plano Real</div>
+<div class="tab" onclick="showTab(2)">⚖️ Comparativo</div>
+<div class="tab" onclick="showTab(3)">🔍 Análise</div>
+<div class="tab" onclick="showTab(4)">🎯 Caixinhas</div>
+<div class="tab" onclick="showTab(5)">🧮 Simulador</div>
+</div>
 
-<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
-
-<aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-        <span style="font-family:'Space Mono'; font-weight: bold;">EK FINANCE</span>
-        <button onclick="toggleSidebar()" style="background:none; border:none; color:white; cursor:pointer;" class="mobile-only">✕</button>
-    </div>
-    <nav class="nav-links">
-        <div class="nav-item active" onclick="showTab(0)">📝 Lançamentos</div>
-        <div class="nav-item" onclick="showTab(1)">⚖️ Comparativo</div>
-        <div class="nav-item" onclick="showTab(2)">📈 Dashboard</div>
-        <div class="nav-item" onclick="showTab(3)">🚀 Simulador</div>
-    </nav>
-    <div style="padding: 20px;">
-        <button class="btn" style="width:100%; background:var(--border); color:var(--text)" onclick="toggleTheme()">🌓 Alternar Tema</button>
-    </div>
-</aside>
-
-<main class="main-wrapper">
-    <div class="top-bar">
-        <button class="menu-toggle" onclick="toggleSidebar()">☰ Menu</button>
-        <h2 id="page-title">Lançamentos</h2>
-    </div>
-
-    <div class="tab-content" id="tab0">
-        <div class="grid">
-            <div class="card">
-                <label style="color:var(--primary); font-weight:bold">💰 RECEITAS</label>
-                <div class="field" style="margin-top:10px">
-                    <label>Salário Bruto</label>
-                    <input type="text" id="r_bruto" data-type="money" placeholder="R$ 0,00">
-                </div>
-                <div class="grid" style="grid-template-columns: 1fr 1fr; margin-top:10px">
-                    <div class="field"><label>Dependentes</label><input type="number" id="r_dep" value="0" min="0"></div>
-                    <div class="field"><label>Pensão</label><input type="text" id="r_pensao" data-type="money"></div>
-                </div>
-            </div>
-
-            <div class="card">
-                <label style="color:var(--danger); font-weight:bold">💸 DESPESAS</label>
-                <div class="grid" style="grid-template-columns: 1fr 1fr; margin-top:10px">
-                    <div class="field"><label>Aluguel</label><input type="text" id="r_aluguel" data-type="money"></div>
-                    <div class="field"><label>Mercado</label><input type="text" id="r_mercado" data-type="money"></div>
-                    <div class="field"><label>Faxina ✨</label><input type="text" id="r_faxina" data-type="money"></div>
-                    <div class="field"><label>Outros</label><input type="text" id="r_outros" data-type="money"></div>
-                </div>
-            </div>
+<div class="content">
+<div class="tab-content" id="tab0">
+    <div class="summary-grid" id="ideal-summary"></div>
+    <div class="section-title"><div><span class="icon">$</span> Salários & Deduções — Titular</div></div>
+    <div class="card">
+        <div class="grid grid-4">
+            <div class="field"><label>Salário Bruto</label><input type="text" data-field="i_sal" data-type="money" placeholder="R$ 0,00"></div>
+            <div class="field"><label>Dependentes</label><input type="number" data-field="i_dep" value="0" min="0"></div>
+            <div class="field"><label>Pensão Alimentícia</label><input type="text" data-field="i_pensao" data-type="money" placeholder="R$ 0,00"></div>
+            <div class="field"><label>Salário Líquido (auto)</label><input type="text" id="i_sal_liq" readonly></div>
         </div>
-        
-        <div class="stat-card" style="margin-top:20px">
-            <label style="font-size: 0.8rem; letter-spacing: 1px;">SALDO DISPONÍVEL</label>
-            <div class="stat-value" id="res_saldo">R$ 0,00</div>
+        <div class="grid grid-3" style="margin-top:10px">
+            <div class="field"><label>INSS (auto)</label><input type="text" id="i_sal_inss" readonly></div>
+            <div class="field"><label>IRRF (auto)</label><input type="text" id="i_sal_irrf" readonly></div>
+            <div class="field"><label>Vale-Alimentação</label><input type="text" data-field="i_va" data-type="money" placeholder="R$ 0,00"></div>
         </div>
     </div>
 
-    <div class="tab-content hidden" id="tab1">
-        <div class="card" id="compare_table">
-            <p>Os dados aparecerão conforme você preenche os lançamentos.</p>
+    <div class="section-title"><div><span class="icon" style="background:var(--coral)">📤</span> Distribuição de Gastos</div></div>
+    <div class="grid grid-2">
+        <div class="card coral">
+            <div class="grid grid-2">
+                <div class="field"><label>Aluguel/Financ.</label><input type="text" data-field="i_aluguel" data-type="money" placeholder="R$ 0,00"></div>
+                <div class="field"><label>Mercado</label><input type="text" data-field="i_mercado" data-type="money" placeholder="R$ 0,00"></div>
+                <div class="field"><label>Luz/Água/Internet</label><input type="text" data-field="i_contas" data-type="money" placeholder="R$ 0,00"></div>
+                <div class="field"><label>Transporte</label><input type="text" data-field="i_transp" data-type="money" placeholder="R$ 0,00"></div>
+            </div>
         </div>
-        <button class="btn btn-export" onclick="exportCSV()">📥 Baixar Relatório CSV</button>
+        <div class="chart-container">
+            <canvas id="idealChart"></canvas>
+        </div>
     </div>
+</div>
 
-    <div class="tab-content hidden" id="tab2">
-        <div class="grid">
-            <div class="card">
-                <label>Composição de Gastos</label>
-                <div style="height: 300px;"><canvas id="chartDoughnut"></canvas></div>
-            </div>
-            <div class="card">
-                <label>Renda vs. Despesas</label>
-                <div style="height: 300px;"><canvas id="chartBar"></canvas></div>
-            </div>
+<div class="tab-content hidden" id="tab1">
+    <div class="summary-grid" id="real-summary"></div>
+    <div class="section-title"><div><span class="icon">$</span> Salários & Deduções — Real</div></div>
+    <div class="card">
+        <div class="grid grid-4">
+            <div class="field"><label>Salário Bruto</label><input type="text" data-field="r_sal" data-type="money" placeholder="R$ 0,00"></div>
+            <div class="field"><label>Dependentes</label><input type="number" data-field="r_dep" value="0" min="0"></div>
+            <div class="field"><label>Pensão Alimentícia</label><input type="text" data-field="r_pensao" data-type="money" placeholder="R$ 0,00"></div>
+            <div class="field"><label>Salário Líquido (auto)</label><input type="text" id="r_sal_liq" readonly></div>
         </div>
     </div>
+    <div class="grid grid-2">
+        <div class="card coral">
+            <div class="grid grid-2">
+                <div class="field"><label>Aluguel/Financ.</label><input type="text" data-field="r_aluguel" data-type="money" placeholder="R$ 0,00"></div>
+                <div class="field"><label>Mercado</label><input type="text" data-field="r_mercado" data-type="money" placeholder="R$ 0,00"></div>
+                <div class="field"><label>Luz/Água/Internet</label><input type="text" data-field="r_contas" data-type="money" placeholder="R$ 0,00"></div>
+                <div class="field"><label>Transporte</label><input type="text" data-field="r_transp" data-type="money" placeholder="R$ 0,00"></div>
+            </div>
+        </div>
+        <div class="chart-container">
+            <canvas id="realChart"></canvas>
+        </div>
+    </div>
+</div>
 
-    <div class="tab-content hidden" id="tab3">
-        <div class="card">
-            <p style="margin-bottom: 20px;">Investimento automático baseado no <strong>Saldo Disponível</strong>.</p>
-            <div class="grid">
-                <div class="field"><label>Aporte Mensal</label><input type="text" id="sim_aporte" readonly style="opacity: 0.7"></div>
-                <div class="field"><label>Juros Anuais (%)</label><input type="number" id="sim_juros" value="12"></div>
-                <div class="field"><label>Anos</label><input type="number" id="sim_anos" value="10"></div>
-            </div>
-            <div class="stat-card" style="margin-top:30px; border-color: var(--accent);">
-                <label style="color:var(--accent)">PATRIMÔNIO FINAL</label>
-                <div class="stat-value" id="sim_resultado" style="color:var(--accent)">R$ 0,00</div>
-            </div>
+<div class="tab-content hidden" id="tab2"><div id="compare-table"></div></div>
+<div class="tab-content hidden" id="tab3"><div id="analysis-bad"></div><div id="analysis-good"></div></div>
+<div class="tab-content hidden" id="tab5">
+    <div class="card">
+        <div class="grid grid-3">
+            <div class="field"><label>Investimento Inicial</label><input type="text" id="sim_inicial" data-type="money"></div>
+            <div class="field"><label>Aporte Mensal</label><input type="text" id="sim_aporte" data-type="money"></div>
+            <div class="field"><label>Taxa % (a.m.)</label><input type="number" id="sim_taxa" step="0.1"></div>
         </div>
+        <button class="btn btn-primary" onclick="runSim()" style="margin-top:10px">Simular Crescimento</button>
     </div>
-</main>
+    <div class="chart-container" style="height:400px; margin-top:20px">
+        <canvas id="simChart"></canvas>
+    </div>
+</div>
+</div>
 
 <script>
+const D = { i_dep: 0, r_dep: 0 };
 let charts = {};
 
-function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('open');
-    document.getElementById('overlay').classList.toggle('active');
+const fmt = v => 'R$ ' + (v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const parse = s => { if (!s) return 0; return parseFloat(s.toString().replace(/[R$\s.]/g, '').replace(',', '.')) || 0; };
+
+function moneyMask(el) {
+    let v = el.value.replace(/\D/g, '');
+    v = (parseInt(v || '0') / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    el.value = 'R$ ' + v;
 }
 
-function showTab(idx) {
-    const titles = ["Lançamentos", "Comparativo", "Dashboard", "Simulador"];
-    document.getElementById('page-title').innerText = titles[idx];
-    
-    document.querySelectorAll('.nav-item').forEach((t, i) => t.classList.toggle('active', i === idx));
-    document.querySelectorAll('.tab-content').forEach((t, i) => t.classList.toggle('hidden', i !== idx));
-    
-    if(window.innerWidth < 1024) toggleSidebar();
-    if(idx === 2) renderCharts();
-    if(idx === 3) runSimulation();
-}
-
-// Lógica Financeira (Reutilizada e Protegida contra negativos)
-const parse = v => Math.max(0, parseFloat(v.replace(/\D/g, '')) / 100 || 0);
-const fmt = v => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-
-function calculate() {
-    const bruto = parse(document.getElementById('r_bruto').value);
-    const dep = parseInt(document.getElementById('r_dep').value) || 0;
-    const pensao = parse(document.getElementById('r_pensao').value);
-    
-    // IRRF/INSS Estimado
-    const desc = bruto * 0.20; // Estimativa rápida de impostos
-    const liquido = bruto - desc - (dep * 189) - pensao;
-
-    const gastos = ['r_aluguel', 'r_mercado', 'r_faxina', 'r_outros']
-        .reduce((acc, id) => acc + parse(document.getElementById(id).value), 0);
-
-    const saldo = liquido - gastos;
-    const elSaldo = document.getElementById('res_saldo');
-    elSaldo.innerText = fmt(saldo);
-    elSaldo.style.color = saldo < 0 ? 'var(--danger)' : 'var(--success)';
-    
-    document.getElementById('sim_aporte').value = fmt(Math.max(0, saldo));
-}
-
-function renderCharts() {
-    const ctxD = document.getElementById('chartDoughnut').getContext('2d');
-    const ctxB = document.getElementById('chartBar').getContext('2d');
-    
-    const gastosValues = [
-        parse(document.getElementById('r_aluguel').value),
-        parse(document.getElementById('r_mercado').value),
-        parse(document.getElementById('r_faxina').value),
-        parse(document.getElementById('r_outros').value)
-    ];
-
-    if(charts.d) charts.d.destroy();
-    charts.d = new Chart(ctxD, {
-        type: 'doughnut',
-        data: {
-            labels: ['Aluguel', 'Mercado', 'Faxina', 'Outros'],
-            datasets: [{ data: gastosValues, backgroundColor: ['#2ab5b2', '#8b5cf6', '#f59e0b', '#ef4444'] }]
-        },
-        options: { maintainAspectRatio: false }
-    });
-}
-
-function toggleTheme() {
-    const body = document.body;
-    const current = body.getAttribute('data-theme');
-    body.setAttribute('data-theme', current === 'light' ? 'dark' : 'light');
-}
-
-// Máscara e Eventos
-document.querySelectorAll('[data-type="money"]').forEach(input => {
-    input.addEventListener('input', e => {
-        let v = e.target.value.replace(/\D/g, '');
-        v = (v / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-        e.target.value = v ? 'R$ ' + v : '';
-        calculate();
-    });
+document.addEventListener('input', e => {
+    const el = e.target;
+    if (el.dataset.type === 'money') moneyMask(el);
+    const k = el.dataset.field || el.id;
+    if (k) {
+        D[k] = el.dataset.type === 'money' ? parse(el.value) : el.value;
+        recalc();
+    }
 });
 
-function runSimulation() {
-    const aporte = parse(document.getElementById('sim_aporte').value);
-    const taxa = parseFloat(document.getElementById('sim_juros').value) / 100 / 12;
-    const meses = parseInt(document.getElementById('sim_anos').value) * 12;
-    let total = 0;
-    for(let i=0; i<meses; i++) total = (total + aporte) * (1 + taxa);
-    document.getElementById('sim_resultado').innerText = fmt(total);
+function showTab(n) {
+    document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === n));
+    document.querySelectorAll('.tab-content').forEach((t, i) => t.classList.toggle('hidden', i !== n));
 }
 
-function exportCSV() {
-    let csv = "Categoria;Valor\nSaldo Disponivel;" + document.getElementById('res_saldo').innerText;
-    const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "finance_pro.csv";
-    link.click();
+// CÁLCULO IRRF ATUALIZADO (Deduções de dependentes e pensão)
+function calcIRRF(bruto, inss, dependentes = 0, pensao = 0) {
+    const deducaoDependente = dependentes * 189.59;
+    const base = bruto - inss - deducaoDependente - pensao;
+    if (base <= 2259.20) return 0;
+    if (base <= 2826.65) return base * .075 - 169.44;
+    if (base <= 3751.05) return base * .15 - 381.44;
+    if (base <= 4664.68) return base * .225 - 662.77;
+    return base * .275 - 896.00;
 }
+
+function calcINSS(b) {
+    if (b <= 1412) return b * 0.075;
+    if (b <= 2666.68) return b * 0.09 - 21.18;
+    if (b <= 4000.03) return b * 0.12 - 101.18;
+    if (b <= 7786.02) return b * 0.14 - 181.18;
+    return 908.85;
+}
+
+function updateSalaries(p) {
+    const bruto = D[p + '_sal'] || 0;
+    const dep = parseInt(D[p + '_dep'] || 0);
+    const pensao = D[p + '_pensao'] || 0;
+    
+    const inss = calcINSS(bruto);
+    const irrf = calcIRRF(bruto, inss, dep, pensao);
+    const liq = bruto - inss - irrf;
+
+    document.getElementById(p + '_sal_inss').value = fmt(inss);
+    document.getElementById(p + '_sal_irrf').value = fmt(irrf);
+    document.getElementById(p + '_sal_liq').value = fmt(liq);
+    return liq;
+}
+
+function updateCharts(p, data) {
+    const ctx = document.getElementById(p + 'Chart').getContext('2d');
+    if (charts[p]) charts[p].destroy();
+    
+    charts[p] = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Aluguel', 'Mercado', 'Contas', 'Transporte', 'Investimento'],
+            datasets: [{
+                data: [data.aluguel, data.mercado, data.contas, data.transp, Math.max(0, data.saldo)],
+                backgroundColor: ['#f06868', '#f5a623', '#4a90d9', '#805ad5', '#48bb78']
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+}
+
+function recalc() {
+    ['i', 'r'].forEach(p => {
+        const liq = updateSalaries(p);
+        const gastos = (D[p + '_aluguel'] || 0) + (D[p + '_mercado'] || 0) + (D[p + '_contas'] || 0) + (D[p + '_transp'] || 0);
+        const saldo = liq - gastos;
+        
+        document.getElementById(p + '-summary').innerHTML = `
+            <div class="summary-box"><div>Renda Líquida</div><div class="value">${fmt(liq)}</div></div>
+            <div class="summary-box coral"><div>Gastos</div><div class="value">${fmt(gastos)}</div></div>
+            <div class="summary-box success"><div>Sobra/Investimento</div><div class="value">${fmt(saldo)}</div></div>
+        `;
+
+        updateCharts(p === 'i' ? 'ideal' : 'real', {
+            aluguel: D[p + '_aluguel'], mercado: D[p + '_mercado'], 
+            contas: D[p + '_contas'], transp: D[p + '_transp'], saldo: saldo
+        });
+    });
+}
+
+// SIMULADOR COM GRÁFICO DE LINHA
+function runSim() {
+    const ini = parse(document.getElementById('sim_inicial').value);
+    const ap = parse(document.getElementById('sim_aporte').value);
+    const taxa = parseFloat(document.getElementById('sim_taxa').value) / 100;
+    
+    let saldo = ini;
+    let labels = [];
+    let valores = [];
+
+    for (let i = 0; i <= 12; i++) {
+        labels.push('Mês ' + i);
+        valores.push(saldo);
+        saldo = (saldo + ap) * (1 + taxa);
+    }
+
+    const ctx = document.getElementById('simChart').getContext('2d');
+    if (charts['sim']) charts['sim'].destroy();
+    charts['sim'] = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Evolução do Patrimônio',
+                data: valores,
+                borderColor: '#2ab5b2',
+                tension: 0.3,
+                fill: true,
+                backgroundColor: 'rgba(42, 181, 178, 0.1)'
+            }]
+        }
+    });
+}
+
+// EXPORTAÇÃO PDF
+async function exportPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    doc.setFont("helvetica", "bold");
+    doc.text("Relatório Financeiro Pessoal", 20, 20);
+    
+    const res = [
+        ["Categoria", "Plano Ideal", "Plano Real"],
+        ["Salário Líquido", fmt(parse(document.getElementById('i_sal_liq').value)), fmt(parse(document.getElementById('r_sal_liq').value))],
+        ["Mercado", fmt(D.i_mercado), fmt(D.r_mercado)],
+        ["Aluguel/Moradia", fmt(D.i_aluguel), fmt(D.r_aluguel)],
+        ["Contas Fixas", fmt(D.i_contas), fmt(D.r_contas)]
+    ];
+
+    doc.autoTable({
+        startY: 30,
+        head: [res[0]],
+        body: res.slice(1),
+        theme: 'striped'
+    });
+
+    doc.save("meu-planejamento.pdf");
+}
+
+window.onload = recalc;
 </script>
 </body>
 </html>
