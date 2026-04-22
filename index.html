@@ -205,6 +205,7 @@ font-size:.95rem;line-height:1.5;
 display:flex;gap:12px;align-items:center;
 position:relative;
 clip-path:polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+flex-wrap: wrap;
 }
 .tab-desc .td-icon{font-size:1.4rem;flex-shrink:0}
 .tab-desc::before{
@@ -669,7 +670,11 @@ pointer-events:none;user-select:none;
 </section>
 
 <section class="tab-content hidden" id="tab1">
-  <div class="tab-desc"><span class="td-icon">📊</span> Registre sua situação financeira real — salários atuais, gastos reais, investimentos que possui e dívidas. Seja honesto para que a análise funcione.</div>
+  <div class="tab-desc" style="flex-wrap: wrap;">
+    <span class="td-icon">📊</span>
+    <div style="flex:1; min-width: 250px;">Registre sua situação financeira real — salários atuais, gastos reais, investimentos que possui e dívidas. Seja honesto para que a análise funcione.</div>
+    <button class="btn btn-blue btn-sm" onclick="pullFromIdeal()" title="Copia salários e gastos do Plano Ideal">↓ PUXAR DO IDEAL</button>
+  </div>
   <div class="summary-grid" id="real-summary"></div>
 
   <div class="section-title"><span class="st-num">01</span> Salários · Titular <span class="st-bar"></span><span class="st-side">LIVE</span></div>
@@ -891,6 +896,30 @@ document.addEventListener('input', e => {
 document.addEventListener('change', e => {
   if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') scheduleRecalc();
 });
+
+// =========================================================================
+// FUNÇÃO PUXAR DO PLANO IDEAL
+// =========================================================================
+function pullFromIdeal() {
+  const fields = [
+    'sal', 'va', 'bonus', 'bonus_per',
+    'sal2', 'va2', 'bonus2', 'bonus_per2',
+    'aluguel', 'condo', 'iptu', 'luz', 'agua', 'gas',
+    'edu', 'mercado', 'cartao', 'veiculo', 'comb', 'net'
+  ];
+  
+  fields.forEach(f => {
+    const ideal = document.querySelector(`[data-field="i_${f}"]`);
+    const real = document.querySelector(`[data-field="r_${f}"]`);
+    if (ideal && real) {
+      real.value = ideal.value;
+    }
+  });
+  
+  // Força o recálculo dos totais e o salvamento após puxar os dados
+  recalc();
+  scheduleSave();
+}
 
 // =========================================================================
 // NAVEGAÇÃO (DRAWER + TABS)
